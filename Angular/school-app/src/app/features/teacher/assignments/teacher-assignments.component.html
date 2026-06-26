@@ -1,0 +1,236 @@
+<div class="assignments-page">
+
+  <!-- ── Assignment List View ──────────────────────────────────── -->
+  <ng-container *ngIf="!selectedAssignment()">
+
+    <div class="page-header">
+      <div>
+        <h2 class="page-title">Assignments</h2>
+        <p class="page-sub">Create and manage assignments for your classes</p>
+      </div>
+      <button mat-raised-button color="primary"
+        (click)="showCreateForm.set(!showCreateForm())">
+        <mat-icon>{{ showCreateForm() ? 'close' : 'add' }}</mat-icon>
+        {{ showCreateForm() ? 'Cancel' : 'Create Assignment' }}
+      </button>
+    </div>
+
+    <!-- Create Form -->
+    <div class="create-card" *ngIf="showCreateForm()" [formGroup]="createForm">
+      <h3 class="form-title">New Assignment</h3>
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="span-2">
+          <mat-label>Title</mat-label>
+          <input matInput formControlName="title" placeholder="Assignment title"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="span-2">
+          <mat-label>Description / Instructions</mat-label>
+          <textarea matInput formControlName="description" rows="3"
+            placeholder="Describe the assignment..."></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Class</mat-label>
+          <mat-select formControlName="classId">
+            <mat-option *ngFor="let c of classes" [value]="c.id">
+              {{ c.name }} {{ c.section }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Subject</mat-label>
+          <mat-select formControlName="subjectId">
+            <mat-option *ngFor="let s of subjects" [value]="s.id">
+              {{ s.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Due Date</mat-label>
+          <input matInput [matDatepicker]="dp" formControlName="dueDate"/>
+          <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+          <mat-datepicker #dp></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Total Marks</mat-label>
+          <input matInput type="number" formControlName="totalMarks"/>
+        </mat-form-field>
+      </div>
+
+      <div class="form-footer">
+        <button mat-raised-button color="primary"
+          [disabled]="isCreating()"
+          (click)="createAssignment()">
+          <mat-spinner *ngIf="isCreating()" diameter="18"></mat-spinner>
+          <mat-icon *ngIf="!isCreating()">save</mat-icon>
+          {{ isCreating() ? 'Creating...' : 'Create Assignment' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Assignment List -->
+    <div class="loading-state" *ngIf="isLoadingAssignments()">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoadingAssignments() && assignments.length === 0">
+      <mat-icon>assignment</mat-icon>
+      <h3>No assignments yet</h3>
+      <p>Create your first assignment above.</p>
+    </div>
+
+    <div class="assignment-grid" *ngIf="!isLoadingAssignments()">
+      <div
+        class="assignment-card"
+        *ngFor="let a of assignments"
+        [class.overdue]="a.isOverdue">
+
+        <div class="ac-header">
+          <div class="ac-subject">{{ a.subjectName }}</div>
+          <span class="overdue-badge" *ngIf="a.isOverdue">Overdue</span>
+        </div>
+
+        <h3 class="ac-title">{{ a.title }}</h3>
+        <p class="ac-desc">{{ a.description }}</p>
+
+        <div class="ac-meta">
+          <span class="meta-item">
+            <mat-icon>class</mat-icon>{{ a.className }}
+          </span>
+          <span class="meta-item">
+            <mat-icon>event</mat-icon>{{ a.dueDate | date:'mediumDate' }}
+          </span>
+          <span class="meta-item">
+            <mat-icon>score</mat-icon>{{ a.totalMarks }} marks
+          </span>
+        </div>
+
+        <div class="ac-footer">
+          <span class="sub-count">
+            <mat-icon>people</mat-icon>
+            {{ a.submissionCount }} submissions
+          </span>
+          <button mat-stroked-button color="primary"
+            (click)="viewSubmissions(a)">
+            View Submissions
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- ── Submissions View ───────────────────────────────────────── -->
+  <ng-container *ngIf="selectedAssignment() as assignment">
+
+    <div class="page-header">
+      <div>
+        <button mat-icon-button (click)="backToList()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div>
+          <h2 class="page-title">{{ assignment.title }}</h2>
+          <p class="page-sub">{{ assignment.className }} · Due {{ assignment.dueDate | date:'mediumDate' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-state" *ngIf="isLoadingSubmissions()">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoadingSubmissions() && submissions.length === 0">
+      <mat-icon>inbox</mat-icon>
+      <h3>No submissions yet</h3>
+    </div>
+
+    <!-- Grade Panel Overlay -->
+    <div class="grade-overlay" *ngIf="showGradePanel()">
+      <div class="grade-panel" [formGroup]="gradeForm">
+        <div class="grade-panel-header">
+          <h3>Grade — {{ selectedSubmission()?.studentName }}</h3>
+          <button mat-icon-button (click)="showGradePanel.set(false)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div class="submission-preview">
+          <p class="preview-label">Student's Answer:</p>
+          <p class="preview-content">{{ selectedSubmission()?.content }}</p>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Marks Awarded (out of {{ assignment.totalMarks }})</mat-label>
+          <input matInput type="number" formControlName="marksAwarded"
+            [max]="assignment.totalMarks" min="0"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Teacher Remark</mat-label>
+          <input matInput formControlName="teacherRemark"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Feedback</mat-label>
+          <textarea matInput formControlName="feedback" rows="3"></textarea>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" class="grade-submit"
+          [disabled]="isGrading()" (click)="submitGrade()">
+          <mat-icon>grading</mat-icon>
+          {{ isGrading() ? 'Saving...' : 'Save Grade' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Submissions Table -->
+    <div class="sub-table" *ngIf="!isLoadingSubmissions() && submissions.length > 0">
+      <div class="sub-header">
+        <span class="sc-roll">Roll No</span>
+        <span class="sc-name">Student</span>
+        <span class="sc-status">Status</span>
+        <span class="sc-marks">Marks</span>
+        <span class="sc-action">Action</span>
+      </div>
+
+      <div class="sub-row" *ngFor="let sub of submissions">
+        <span class="sc-roll">
+          <span class="roll-tag">{{ sub.rollNumber }}</span>
+        </span>
+        <span class="sc-name">
+          <div class="s-avatar">{{ sub.studentName.charAt(0) }}</div>
+          <div>
+            <strong>{{ sub.studentName }}</strong>
+            <small *ngIf="sub.isLate" class="late-tag">Late</small>
+          </div>
+        </span>
+        <span class="sc-status">
+          <span class="status-pill"
+            [style.background]="getStatusBg(sub.status)"
+            [style.color]="getStatusColor(sub.status)">
+            {{ sub.status }}
+          </span>
+        </span>
+        <span class="sc-marks">
+          <span *ngIf="sub.marksAwarded !== null && sub.marksAwarded !== undefined">
+            {{ sub.marksAwarded }} / {{ assignment.totalMarks }}
+          </span>
+          <span class="dash" *ngIf="sub.marksAwarded === null || sub.marksAwarded === undefined">—</span>
+        </span>
+        <span class="sc-action">
+          <button mat-stroked-button color="primary" (click)="openGradePanel(sub)">
+            <mat-icon>grading</mat-icon>
+            {{ sub.status === 'Graded' ? 'Re-grade' : 'Grade' }}
+          </button>
+        </span>
+      </div>
+    </div>
+
+  </ng-container>
+
+</div>

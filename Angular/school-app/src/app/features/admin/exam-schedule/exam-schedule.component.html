@@ -1,0 +1,157 @@
+<div class="exam-page">
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Exam Schedule</h2>
+      <p class="page-sub">Manage examination dates and rooms</p>
+    </div>
+    <button mat-raised-button color="primary"
+      *ngIf="isPrincipal()"
+      (click)="showCreate.set(!showCreate())">
+      <mat-icon>{{ showCreate() ? 'close' : 'add' }}</mat-icon>
+      {{ showCreate() ? 'Cancel' : 'Schedule Exam' }}
+    </button>
+  </div>
+
+  <!-- Create Form -->
+  <div class="create-card" *ngIf="showCreate() && isPrincipal()">
+    <h3 class="form-title">Schedule New Exam</h3>
+    <div class="form-grid" [formGroup]="createForm">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Class</mat-label>
+        <mat-select formControlName="classId">
+          <mat-option *ngFor="let c of classes" [value]="c.id">{{ c.name }} {{ c.section }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Subject</mat-label>
+        <mat-select formControlName="subjectId">
+          <mat-option *ngFor="let s of subjects" [value]="s.id">{{ s.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Exam Type</mat-label>
+        <mat-select formControlName="examType">
+          <mat-option *ngFor="let e of examTypes" [value]="e.value">{{ e.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Invigilator</mat-label>
+        <mat-select formControlName="invigilatorTeacherId">
+          <mat-option *ngFor="let t of teachers" [value]="t.id">{{ t.fullName }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Exam Date</mat-label>
+        <input matInput [matDatepicker]="dp" formControlName="examDate"/>
+        <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+        <mat-datepicker #dp></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Start Time (e.g. 09:00)</mat-label>
+        <input matInput formControlName="startTime"/>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>End Time (e.g. 12:00)</mat-label>
+        <input matInput formControlName="endTime"/>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Room Number</mat-label>
+        <input matInput formControlName="roomNumber" placeholder="e.g. Room 101"/>
+      </mat-form-field>
+
+    </div>
+    <div class="form-footer">
+      <button mat-raised-button color="primary"
+        [disabled]="isCreating()" (click)="createExam()">
+        <mat-spinner *ngIf="isCreating()" diameter="18"></mat-spinner>
+        <mat-icon *ngIf="!isCreating()">save</mat-icon>
+        {{ isCreating() ? 'Scheduling...' : 'Schedule Exam' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="filter-row">
+    <mat-form-field appearance="outline" class="class-filter">
+      <mat-label>Select Class to View Exams</mat-label>
+      <mat-select [(ngModel)]="filterClassId" (selectionChange)="loadExams()">
+        <mat-option *ngFor="let c of classes" [value]="c.id">
+          {{ c.name }} {{ c.section }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Exams Table -->
+  <div class="exams-card" *ngIf="!isLoading() && exams.length > 0">
+    <div class="exams-header">
+      <span class="ec-subject">Subject</span>
+      <span class="ec-type">Exam Type</span>
+      <span class="ec-date">Date</span>
+      <span class="ec-time">Time</span>
+      <span class="ec-room">Room</span>
+      <span class="ec-invig">Invigilator</span>
+      <span class="ec-marks">Marks Entry</span>
+      <span class="ec-action" *ngIf="isPrincipal()">Action</span>
+    </div>
+
+    <div class="exam-row" *ngFor="let exam of exams">
+      <span class="ec-subject">
+        <strong>{{ exam.subjectName }}</strong>
+        <small>{{ exam.className }}</small>
+      </span>
+      <span class="ec-type">
+        <span class="type-badge"
+          [style.background]="getExamTypeBg(exam.examType)"
+          [style.color]="getExamTypeColor(exam.examType)">
+          {{ exam.examType }}
+        </span>
+      </span>
+      <span class="ec-date">{{ exam.examDate | date:'mediumDate' }}</span>
+      <span class="ec-time">{{ exam.startTime }} – {{ exam.endTime }}</span>
+      <span class="ec-room">{{ exam.roomNumber }}</span>
+      <span class="ec-invig">{{ exam.invigilatorTeacher }}</span>
+      <span class="ec-marks">
+        <span class="marks-badge"
+          [class.open]="exam.marksEntryOpen"
+          [class.closed]="!exam.marksEntryOpen"
+          *ngIf="isPrincipal()"
+          (click)="toggleMarksEntry(exam)"
+          style="cursor:pointer">
+          {{ exam.marksEntryOpen ? 'Open' : 'Closed' }}
+        </span>
+        <span class="marks-badge" *ngIf="!isPrincipal()"
+          [class.open]="exam.marksEntryOpen"
+          [class.closed]="!exam.marksEntryOpen">
+          {{ exam.marksEntryOpen ? 'Open' : 'Closed' }}
+        </span>
+      </span>
+      <span class="ec-action" *ngIf="isPrincipal()">
+        <button mat-icon-button color="warn" (click)="deleteExam(exam.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </span>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading() && exams.length === 0">
+    <mat-icon>event_note</mat-icon>
+    <h3>No exams scheduled</h3>
+    <p>Select a class or schedule a new exam above.</p>
+  </div>
+
+</div>

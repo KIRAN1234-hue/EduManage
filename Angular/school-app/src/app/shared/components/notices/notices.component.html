@@ -1,0 +1,116 @@
+<div class="notices-page">
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Notice Board</h2>
+      <p class="page-sub">School announcements and updates</p>
+    </div>
+    <button mat-raised-button color="primary"
+      *ngIf="canCreate()"
+      (click)="showCreate.set(!showCreate())">
+      <mat-icon>{{ showCreate() ? 'close' : 'campaign' }}</mat-icon>
+      {{ showCreate() ? 'Cancel' : 'Post Notice' }}
+    </button>
+  </div>
+
+  <!-- Create Form -->
+  <div class="create-card" *ngIf="showCreate() && canCreate()">
+    <h3 class="form-title">Post New Notice</h3>
+    <div [formGroup]="createForm" class="notice-form">
+      <mat-form-field appearance="outline" class="full-w">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title" placeholder="Notice title"/>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-w">
+        <mat-label>Content</mat-label>
+        <textarea matInput formControlName="content" rows="4"
+          placeholder="Write the notice content..."></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>For</mat-label>
+        <mat-select formControlName="targetRole">
+          <mat-option *ngFor="let r of targetRoles" [value]="r.value">
+            {{ r.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="form-footer">
+      <button mat-raised-button color="primary"
+        [disabled]="isCreating() || createForm.invalid"
+        (click)="createNotice()">
+        <mat-spinner *ngIf="isCreating()" diameter="18"></mat-spinner>
+        <mat-icon *ngIf="!isCreating()">send</mat-icon>
+        {{ isCreating() ? 'Posting...' : 'Post Notice' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!isLoading() && notices.length === 0">
+    <mat-icon>campaign</mat-icon>
+    <h3>No notices yet</h3>
+    <p>Notices from school management will appear here.</p>
+  </div>
+
+  <!-- Notices List -->
+  <div class="notices-list" *ngIf="!isLoading()">
+    <div
+      class="notice-card"
+      *ngFor="let notice of notices"
+      [class.acknowledged]="notice.isAcknowledgedByMe">
+
+      <div class="nc-header">
+        <div class="nc-avatar">
+          <mat-icon>campaign</mat-icon>
+        </div>
+        <div class="nc-info">
+          <span class="nc-posted-by">{{ notice.postedBy }}</span>
+          <span class="nc-time">{{ getTimeAgo(notice.publishedAt) }}</span>
+        </div>
+        <div class="nc-badges">
+          <span class="target-badge">{{ notice.targetRole }}</span>
+          <span class="ack-badge" *ngIf="notice.isAcknowledgedByMe">
+            <mat-icon>check_circle</mat-icon> Read
+          </span>
+        </div>
+      </div>
+
+      <h3 class="nc-title">{{ notice.title }}</h3>
+      <p class="nc-content">{{ notice.content }}</p>
+
+      <div class="nc-footer">
+        <span class="ack-count">
+          <mat-icon>people</mat-icon>
+          {{ notice.acknowledgementCount }} acknowledged
+        </span>
+        <div class="nc-actions">
+          <button
+            mat-stroked-button
+            [color]="notice.isAcknowledgedByMe ? 'primary' : 'primary'"
+            *ngIf="!canCreate()"
+            [disabled]="notice.isAcknowledgedByMe"
+            (click)="acknowledge(notice)">
+            <mat-icon>{{ notice.isAcknowledgedByMe ? 'check_circle' : 'check' }}</mat-icon>
+            {{ notice.isAcknowledgedByMe ? 'Acknowledged' : 'Acknowledge' }}
+          </button>
+          <button mat-icon-button color="warn"
+            *ngIf="canDelete()"
+            (click)="deleteNotice(notice)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

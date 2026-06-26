@@ -1,0 +1,112 @@
+<div class="fees-page">
+
+  <div class="page-header">
+    <h2 class="page-title">My Fees</h2>
+    <p class="page-sub">Fee status and payment history</p>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <ng-container *ngIf="!isLoading() && feeStatus() as status">
+
+    <!-- Summary Cards -->
+    <div class="summary-row">
+      <div class="sum-card">
+        <mat-icon>account_balance_wallet</mat-icon>
+        <div>
+          <span class="sum-label">Total Fee</span>
+          <span class="sum-val">₹{{ status.totalDue | number }}</span>
+        </div>
+      </div>
+      <div class="sum-card green">
+        <mat-icon>check_circle</mat-icon>
+        <div>
+          <span class="sum-label">Paid</span>
+          <span class="sum-val">₹{{ status.totalPaid | number }}</span>
+        </div>
+      </div>
+      <div class="sum-card" [class.red]="status.balance > 0">
+        <mat-icon>pending</mat-icon>
+        <div>
+          <span class="sum-label">Balance</span>
+          <span class="sum-val">₹{{ status.balance | number }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overall Progress -->
+    <div class="progress-card">
+      <div class="progress-header">
+        <span>Overall Payment Progress</span>
+        <span class="pct">{{ status.totalDue > 0 ? (status.totalPaid / status.totalDue * 100 | number:'1.0-0') : 0 }}%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill"
+          [style.width]="getProgressWidth(status.totalPaid, status.totalDue)">
+        </div>
+      </div>
+    </div>
+
+    <!-- Terms -->
+    <div class="terms-list">
+      <div class="term-card" *ngFor="let term of status.terms"
+        [class.overdue]="term.status === 'Overdue'">
+
+        <div class="term-header">
+          <div class="term-name">
+            <mat-icon>receipt</mat-icon>
+            {{ term.termName }}
+          </div>
+          <span class="status-pill"
+            [style.background]="getStatusBg(term.status)"
+            [style.color]="getStatusColor(term.status)">
+            {{ term.status }}
+          </span>
+        </div>
+
+        <div class="term-amounts">
+          <div class="ta-item">
+            <span class="ta-label">Fee Amount</span>
+            <span class="ta-val">₹{{ term.amount | number }}</span>
+          </div>
+          <div class="ta-item">
+            <span class="ta-label">Paid</span>
+            <span class="ta-val green">₹{{ term.paid | number }}</span>
+          </div>
+          <div class="ta-item">
+            <span class="ta-label">Balance</span>
+            <span class="ta-val" [class.red]="term.amount - term.paid > 0">
+              ₹{{ term.amount - term.paid | number }}
+            </span>
+          </div>
+          <div class="ta-item">
+            <span class="ta-label">Due Date</span>
+            <span class="ta-val">{{ term.dueDate | date:'mediumDate' }}</span>
+          </div>
+        </div>
+
+        <div class="term-bar">
+          <div class="tb-fill"
+            [style.width]="getProgressWidth(term.paid, term.amount)"
+            [style.background]="getStatusColor(term.status)">
+          </div>
+        </div>
+
+        <div class="receipt-row" *ngIf="term.receiptNumber">
+          <mat-icon>receipt_long</mat-icon>
+          Receipt: {{ term.receiptNumber }}
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
+
+  <div class="empty-state" *ngIf="!isLoading() && !feeStatus()">
+    <mat-icon>payments</mat-icon>
+    <h3>No fee records found</h3>
+  </div>
+
+</div>

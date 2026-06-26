@@ -1,0 +1,101 @@
+<div class="complaints-page">
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Complaints</h2>
+      <p class="page-sub">Raise and track your school grievances</p>
+    </div>
+    <button mat-raised-button color="primary"
+      (click)="showForm.set(!showForm())">
+      <mat-icon>{{ showForm() ? 'close' : 'add' }}</mat-icon>
+      {{ showForm() ? 'Cancel' : 'New Complaint' }}
+    </button>
+  </div>
+
+  <!-- Form -->
+  <div class="form-card" *ngIf="showForm()">
+    <h3 class="card-title">Raise New Complaint</h3>
+    <div [formGroup]="form" class="comp-form">
+
+      <mat-form-field appearance="outline" class="full-w">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title"
+          placeholder="Brief title of your complaint"/>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-w">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="category">
+          <mat-option *ngFor="let c of categories" [value]="c.value">
+            {{ c.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-w">
+        <mat-label>Description (min 20 characters)</mat-label>
+        <textarea matInput formControlName="description" rows="4"
+          placeholder="Explain your complaint in detail..."></textarea>
+        <mat-hint>{{ form.get('description')?.value?.length || 0 }} chars</mat-hint>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary"
+        [disabled]="isSubmitting() || form.invalid"
+        (click)="submit()">
+        <mat-spinner *ngIf="isSubmitting()" diameter="18"></mat-spinner>
+        <mat-icon *ngIf="!isSubmitting()">send</mat-icon>
+        {{ isSubmitting() ? 'Submitting...' : 'Submit Complaint' }}
+      </button>
+
+    </div>
+  </div>
+
+  <!-- List -->
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="empty-state"
+    *ngIf="!isLoading() && complaints.length === 0 && !showForm()">
+    <mat-icon>report_problem</mat-icon>
+    <h3>No complaints</h3>
+    <p>Your complaints will appear here after submission.</p>
+  </div>
+
+  <div class="complaints-list" *ngIf="!isLoading()">
+    <div class="complaint-card" *ngFor="let c of complaints">
+
+      <div class="cc-header">
+        <div class="cc-left">
+          <span class="cc-category">{{ c.category }}</span>
+          <h4 class="cc-title">{{ c.title }}</h4>
+        </div>
+        <span class="status-pill"
+          [style.background]="getStatusBg(c.status)"
+          [style.color]="getStatusColor(c.status)">
+          <mat-icon>{{ getStatusIcon(c.status) }}</mat-icon>
+          {{ c.status }}
+        </span>
+      </div>
+
+      <p class="cc-desc">{{ c.description }}</p>
+
+      <div class="cc-meta">
+        <span><mat-icon>calendar_today</mat-icon>{{ c.createdAt | date:'mediumDate' }}</span>
+        <span *ngIf="c.assignedTo">
+          <mat-icon>person</mat-icon>Assigned to {{ c.assignedTo }}
+        </span>
+        <span *ngIf="c.resolvedAt">
+          <mat-icon>check</mat-icon>Resolved {{ c.resolvedAt | date:'mediumDate' }}
+        </span>
+      </div>
+
+      <div class="resolution-remark" *ngIf="c.resolutionRemark">
+        <mat-icon>format_quote</mat-icon>
+        <p>{{ c.resolutionRemark }}</p>
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,70 @@
+.library-page { display:flex; flex-direction:column; gap:20px; max-width:1200px; }
+.page-title { font-size:1.4rem; font-weight:800; color:#0F172A; margin:0 0 2px; }
+.page-sub   { font-size:0.875rem; color:#64748B; margin:0; }
+.page-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+
+.header-stats { display:flex; gap:8px; }
+.stat-pill { font-size:0.78rem; font-weight:700; background:#DBEAFE; color:#2563EB; padding:4px 12px; border-radius:20px; &.warn { background:#FEE2E2; color:#DC2626; } }
+
+.tab-content { padding:20px 0; display:flex; flex-direction:column; gap:16px; }
+
+.books-toolbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+
+.search-wrap {
+  flex: 1; min-width: 220px;
+  display: flex; align-items: center; gap: 8px;
+  background: white; border: 1.5px solid #E2E8F0; border-radius: 10px;
+  padding: 0 12px; height: 46px;
+
+  &:focus-within { border-color:#2563EB; }
+  mat-icon { color:#9CA3AF; }
+  .search-input { flex:1; border:none; outline:none; font-size:0.875rem; font-family:'Inter',sans-serif; }
+}
+
+.card { background:white; border-radius:16px; padding:24px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border:1px solid #F1F5F9; }
+.card-title { font-size:0.95rem; font-weight:700; color:#0F172A; margin:0 0 16px; }
+
+.form-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; .span-2 { grid-column:1/-1; } @media (max-width:768px) { grid-template-columns:1fr; } }
+.form-footer { display:flex; justify-content:flex-end; margin-top:8px; button { display:flex; align-items:center; gap:6px; min-width:140px; } }
+
+.loading-state { display:flex; justify-content:center; padding:60px; }
+.empty-state { display:flex; flex-direction:column; align-items:center; gap:12px; padding:60px; background:white; border-radius:16px; text-align:center; color:#94A3B8; mat-icon { font-size:48px; width:48px; height:48px; color:#CBD5E1; } h3 { color:#374151; margin:0; } }
+
+.books-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; }
+
+.book-card {
+  background:white; border-radius:14px; padding:18px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border:1px solid #F1F5F9; display:flex; flex-direction:column; gap:6px;
+  &:hover { box-shadow:0 4px 16px rgba(0,0,0,0.1); }
+}
+
+.bc-header { display:flex; align-items:center; justify-content:space-between; }
+.bc-category { font-size:0.72rem; font-weight:700; color:#7C3AED; background:#EDE9FE; padding:2px 8px; border-radius:20px; }
+.avail-badge { font-size:0.72rem; font-weight:700; color:#16A34A; background:#DCFCE7; padding:2px 8px; border-radius:20px; &.unavailable { color:#DC2626; background:#FEE2E2; } }
+.bc-title  { font-size:0.9rem; font-weight:700; color:#0F172A; margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.bc-author { font-size:0.78rem; color:#64748B; margin:0; }
+.bc-isbn   { font-size:0.72rem; color:#94A3B8; margin:0; font-family:monospace; }
+.bc-footer { display:flex; align-items:center; justify-content:space-between; padding-top:8px; border-top:1px solid #F8FAFC; }
+.bc-shelf  { display:flex; align-items:center; gap:3px; font-size:0.72rem; color:#94A3B8; mat-icon { font-size:12px; width:12px; height:12px; } }
+
+.max-600 { max-width:600px; }
+.issue-form { display:flex; flex-direction:column; gap:8px; }
+.full-w { width:100%; }
+.full-btn { width:100%; height:48px; margin-top:8px; display:flex; align-items:center; justify-content:center; gap:8px; }
+
+.issues-table { background:white; border-radius:16px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.07); }
+
+.it-header { display:grid; grid-template-columns:1.5fr 1fr 110px 110px 130px 100px; padding:10px 20px; background:#F8FAFC; border-bottom:1px solid #F1F5F9; font-size:0.72rem; font-weight:700; color:#64748B; text-transform:uppercase; gap:8px; }
+
+.it-row {
+  display:grid; grid-template-columns:1.5fr 1fr 110px 110px 130px 100px;
+  padding:12px 20px; border-bottom:1px solid #F8FAFC; align-items:center; gap:8px; font-size:0.875rem;
+  &:hover { background:#F8FAFC; }
+  &:last-child { border-bottom:none; }
+  &.near-due { background:#FFFBEB; }
+  &.overdue-row { background:#FFF5F5; }
+
+  span:nth-child(1), span:nth-child(2) { display:flex; flex-direction:column; strong { font-size:0.85rem; } small { font-size:0.72rem; color:#94A3B8; } }
+}
+
+.days-badge { padding:3px 10px; border-radius:20px; font-size:0.72rem; font-weight:700; background:#FEF3C7; color:#D97706; &.overdue { background:#FEE2E2; color:#DC2626; } }
+.fine-amt { font-weight:700; color:#DC2626; }

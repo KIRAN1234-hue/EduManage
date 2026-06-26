@@ -1,0 +1,81 @@
+<div class="reg-page student">
+  <div class="reg-card">
+
+    <div class="reg-logo">
+      <div class="logo-circle"><mat-icon>school</mat-icon></div>
+      <h1>EduManage</h1>
+    </div>
+
+    <div class="success-state" *ngIf="isSuccess()">
+      <div class="success-icon"><mat-icon>check_circle</mat-icon></div>
+      <h2>Welcome Aboard!</h2>
+      <p>Your student account is ready. Redirecting to login...</p>
+    </div>
+
+    <div *ngIf="!isSuccess()">
+      <div class="reg-header">
+        <h2>Student Registration</h2>
+        <p>Use your roll number, date of birth and registered email to set your password.</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Roll Number</mat-label>
+          <mat-icon matPrefix>badge</mat-icon>
+          <input matInput formControlName="rollNumber" placeholder="e.g. A001"/>
+          <mat-error>Roll number is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Date of Birth</mat-label>
+          <mat-icon matPrefix>cake</mat-icon>
+          <input matInput [matDatepicker]="dp" formControlName="dateOfBirth"/>
+          <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+          <mat-datepicker #dp></mat-datepicker>
+          <mat-error>Date of birth is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Your Registered Email</mat-label>
+          <mat-icon matPrefix>email</mat-icon>
+          <input matInput type="email" formControlName="email"
+            placeholder="Email given by school"/>
+          <mat-error>Valid email is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Set Your Password</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input
+            matInput
+            [type]="hidePassword ? 'password' : 'text'"
+            formControlName="newPassword"
+          />
+          <button mat-icon-button matSuffix type="button"
+            (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error>Minimum 8 characters required</mat-error>
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          type="submit"
+          class="submit-btn"
+          [disabled]="isLoading()">
+          <mat-spinner *ngIf="isLoading()" diameter="20"></mat-spinner>
+          <mat-icon *ngIf="!isLoading()">how_to_reg</mat-icon>
+          {{ isLoading() ? 'Activating...' : 'Create My Account' }}
+        </button>
+
+      </form>
+
+      <p class="back-link">
+        Already registered?
+        <a (click)="router.navigate(['/login'])">Sign in here</a>
+      </p>
+    </div>
+
+  </div>
+</div>

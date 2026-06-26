@@ -1,0 +1,112 @@
+<header class="app-header">
+  <div class="header-left">
+    <button class="menu-btn" (click)="onMenuToggle()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <div class="breadcrumb">
+      <span class="app-name">EduManage</span>
+      <mat-icon class="bc-sep">chevron_right</mat-icon>
+      <span class="bc-page">{{ pageTitle }}</span>
+    </div>
+  </div>
+
+  <div class="header-right">
+
+    <!-- Notification Bell — powered by NgRx store -->
+    <div class="notif-wrap">
+      <button class="notif-btn" (click)="togglePanel()">
+        <mat-icon>notifications</mat-icon>
+        <span class="notif-badge"
+          *ngIf="(unreadCount$ | async) as count">
+          {{ count > 99 ? '99+' : count }}
+        </span>
+      </button>
+
+      <!-- Notification Panel -->
+      <div class="notif-panel" *ngIf="showNotifPanel">
+        <div class="np-header">
+          <h3>
+            Notifications
+            <span class="np-count"
+              *ngIf="(unreadCount$ | async) as count">
+              {{ count }}
+            </span>
+          </h3>
+          <div class="np-actions">
+            <button class="mark-all-btn"
+              *ngIf="(unreadCount$ | async)! > 0"
+              (click)="markAllRead()">
+              Mark all read
+            </button>
+            <button class="close-btn"
+              (click)="showNotifPanel = false">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="np-list">
+          <ng-container *ngIf="notifications$ | async as notifications">
+
+            <div
+              class="np-item"
+              *ngFor="let notif of notifications"
+              [class.unread]="!notif.isRead"
+              (click)="markAsRead(notif)">
+
+              <div class="npi-icon"
+                [style.background]="getNotifColor(notif.notificationType) + '18'"
+                [style.color]="getNotifColor(notif.notificationType)">
+                <mat-icon>
+                  {{ getNotifIcon(notif.notificationType) }}
+                </mat-icon>
+              </div>
+
+              <div class="npi-content">
+                <p class="npi-title">{{ notif.title }}</p>
+                <p class="npi-body">{{ notif.body }}</p>
+                <span class="npi-time">
+                  {{ getTimeAgo(notif.createdAt) }}
+                </span>
+              </div>
+
+              <button class="npi-del"
+                (click)="deleteNotif(notif.id, $event)">
+                <mat-icon>close</mat-icon>
+              </button>
+
+            </div>
+
+            <div class="np-empty" *ngIf="notifications.length === 0">
+              <mat-icon>notifications_none</mat-icon>
+              <p>All caught up!</p>
+            </div>
+
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Chip -->
+    <div class="user-chip" [matMenuTriggerFor]="userMenu">
+      <div class="user-avatar" *ngIf="user$ | async as user">
+        {{ user.fullName ? user.fullName.charAt(0) : 'U' }}
+      </div>
+      <div class="user-info" *ngIf="user$ | async as user">
+        <span class="user-name">{{ user.fullName }}</span>
+        <span class="user-role" *ngIf="role$ | async as role">
+          {{ role }}
+        </span>
+      </div>
+      <mat-icon class="chevron">expand_more</mat-icon>
+    </div>
+
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="onLogout()">
+        <mat-icon>logout</mat-icon>
+        Logout
+      </button>
+    </mat-menu>
+
+  </div>
+</header>

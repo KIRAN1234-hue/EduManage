@@ -1,0 +1,55 @@
+.library-page { display:flex; flex-direction:column; gap:20px; max-width:1100px; }
+.page-title { font-size:1.4rem; font-weight:800; color:#0F172A; margin:0 0 2px; }
+.page-sub   { font-size:0.875rem; color:#64748B; margin:0; }
+.loading-state { display:flex; justify-content:center; padding:60px; }
+.empty-state { display:flex; flex-direction:column; align-items:center; gap:12px; padding:60px; background:white; border-radius:16px; text-align:center; color:#94A3B8; mat-icon { font-size:48px; width:48px; height:48px; color:#CBD5E1; } h3 { color:#374151; margin:0; } p { margin:0; font-size:0.875rem; } }
+
+.tab-bar { display:flex; gap:8px; background:white; border-radius:14px; padding:6px; box-shadow:0 1px 4px rgba(0,0,0,0.07); width:fit-content; }
+
+.tab-btn {
+  display:flex; align-items:center; gap:6px; padding:8px 16px; border-radius:10px; border:none; background:transparent; font-size:0.82rem; font-weight:600; color:#64748B; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s; position:relative;
+  mat-icon { font-size:16px; width:16px; height:16px; }
+  &.active { background:#EFF6FF; color:#2563EB; }
+  &:hover:not(.active) { background:#F8FAFC; }
+}
+
+.badge { position:absolute; top:4px; right:4px; width:16px; height:16px; border-radius:50%; background:#DC2626; color:white; font-size:0.65rem; font-weight:700; display:flex; align-items:center; justify-content:center; }
+
+.issues-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; }
+
+.issue-card {
+  background:white; border-radius:14px; padding:18px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border:1px solid #F1F5F9; display:flex; flex-direction:column; gap:10px;
+  &.overdue { border-color:#FCA5A5; background:#FFF5F5; }
+}
+
+.ic-header { display:flex; align-items:center; gap:8px; }
+.overdue-tag { font-size:0.7rem; font-weight:700; color:#DC2626; background:#FEE2E2; padding:2px 8px; border-radius:20px; }
+.ic-title  { font-size:0.9rem; font-weight:700; color:#0F172A; margin:0; }
+.ic-author { font-size:0.78rem; color:#64748B; margin:0; }
+
+.ic-meta { display:flex; flex-direction:column; gap:4px; }
+.meta-row { display:flex; align-items:center; gap:6px; font-size:0.78rem; color:#64748B; mat-icon { font-size:14px; width:14px; height:14px; } &.due-red { color:#DC2626; } &.fine { color:#D97706; } }
+
+.status-pill { padding:3px 10px; border-radius:20px; font-size:0.72rem; font-weight:700; }
+
+.search-wrap { display:flex; align-items:center; gap:8px; background:white; border:1.5px solid #E2E8F0; border-radius:10px; padding:0 12px; height:46px; &:focus-within { border-color:#2563EB; } mat-icon { color:#9CA3AF; } .search-input { flex:1; border:none; outline:none; font-size:0.875rem; font-family:'Inter',sans-serif; } }
+
+.books-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+
+.book-card { background:white; border-radius:14px; padding:16px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border:1px solid #F1F5F9; display:flex; flex-direction:column; gap:4px; }
+.bc-top { display:flex; justify-content:space-between; margin-bottom:4px; }
+.bc-cat { font-size:0.7rem; font-weight:700; color:#7C3AED; background:#EDE9FE; padding:2px 8px; border-radius:20px; }
+.avail-badge { font-size:0.7rem; font-weight:700; color:#16A34A; background:#DCFCE7; padding:2px 8px; border-radius:20px; &.unavail { color:#DC2626; background:#FEE2E2; } }
+.bc-title { font-size:0.875rem; font-weight:700; color:#0F172A; margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.bc-author { font-size:0.75rem; color:#64748B; margin:0; }
+.bc-info { font-size:0.72rem; color:#94A3B8; margin:0; }
+.bc-isbn  { font-size:0.72rem; color:#CBD5E1; margin:0; font-family:monospace; }
+.bc-shelf { display:flex; align-items:center; gap:3px; font-size:0.72rem; color:#94A3B8; margin:0; mat-icon { font-size:12px; width:12px; height:12px; } }
+
+.history-list { display:flex; flex-direction:column; gap:10px; }
+.history-card { background:white; border-radius:12px; padding:16px; box-shadow:0 1px 4px rgba(0,0,0,0.07); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.hc-left { display:flex; align-items:center; gap:12px; strong { display:block; font-size:0.875rem; color:#0F172A; } p { font-size:0.75rem; color:#64748B; margin:0; } }
+.hc-avatar { width:36px; height:36px; border-radius:10px; background:#DBEAFE; display:flex; align-items:center; justify-content:center; mat-icon { color:#2563EB; } flex-shrink:0; }
+.hc-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.hc-dates { font-size:0.75rem; color:#94A3B8; }
+.fine-tag { font-size:0.72rem; font-weight:700; color:#D97706; background:#FEF3C7; padding:2px 8px; border-radius:20px; }

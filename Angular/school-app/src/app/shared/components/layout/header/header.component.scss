@@ -1,0 +1,143 @@
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 64px;
+  background: white;
+  border-bottom: 1px solid #F1F5F9;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left { display:flex; align-items:center; gap:12px; }
+
+.menu-btn {
+  background:none; border:none; cursor:pointer; padding:8px;
+  border-radius:8px; display:flex; align-items:center;
+  color:#64748B; transition:background 0.2s;
+  &:hover { background:#F8FAFC; }
+  mat-icon { font-size:22px; }
+}
+
+.breadcrumb { display:flex; align-items:center; gap:4px; }
+.app-name   { font-size:0.95rem; font-weight:800; color:#0F172A; }
+.bc-sep     { font-size:16px; color:#CBD5E1; }
+.bc-page    { font-size:0.875rem; color:#64748B; }
+
+.header-right { display:flex; align-items:center; gap:12px; }
+
+// Notification bell
+.notif-wrap { position:relative; }
+
+.notif-btn {
+  position:relative; background:none; border:none; cursor:pointer;
+  padding:8px; border-radius:8px; display:flex; align-items:center;
+  color:#64748B; transition:all 0.2s;
+  &:hover { background:#F8FAFC; color:#0F172A; }
+  mat-icon { font-size:22px; }
+}
+
+.notif-badge {
+  position:absolute; top:4px; right:4px;
+  min-width:16px; height:16px; border-radius:8px;
+  background:#DC2626; color:white;
+  font-size:0.6rem; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  padding:0 4px; animation:pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform:scale(1); }
+  50%       { transform:scale(1.15); }
+}
+
+// Notification panel
+.notif-panel {
+  position:absolute; top:calc(100% + 8px); right:0;
+  width:360px; background:white; border-radius:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.15);
+  border:1px solid #F1F5F9; overflow:hidden;
+  z-index:999;
+}
+
+.np-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px; border-bottom:1px solid #F8FAFC;
+
+  h3 { font-size:0.9rem; font-weight:700; color:#0F172A; margin:0; }
+}
+
+.np-actions { display:flex; align-items:center; gap:6px; }
+
+.mark-all-btn {
+  background:none; border:none; cursor:pointer;
+  font-size:0.75rem; color:#2563EB; font-family:'Inter',sans-serif;
+  &:hover { text-decoration:underline; }
+}
+
+.close-btn {
+  background:none; border:none; cursor:pointer;
+  display:flex; align-items:center; color:#94A3B8;
+  mat-icon { font-size:18px; }
+}
+
+.np-list { max-height:400px; overflow-y:auto; }
+
+.np-item {
+  display:flex; align-items:flex-start; gap:10px;
+  padding:12px 16px; cursor:pointer; transition:background 0.15s;
+  border-bottom:1px solid #F8FAFC;
+
+  &:hover { background:#F8FAFC; }
+  &.unread { background:#F0F9FF; border-left:3px solid #2563EB; }
+  &:last-child { border-bottom:none; }
+}
+
+.npi-icon {
+  width:34px; height:34px; border-radius:10px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  mat-icon { font-size:18px; width:18px; height:18px; }
+}
+
+.npi-content { flex:1; min-width:0; }
+.npi-title { font-size:0.82rem; font-weight:600; color:#0F172A; margin:0 0 2px; line-height:1.3; }
+.npi-body  { font-size:0.75rem; color:#64748B; margin:0 0 3px; line-height:1.4; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.npi-time  { font-size:0.68rem; color:#94A3B8; }
+
+.npi-del {
+  background:none; border:none; cursor:pointer;
+  color:#CBD5E1; padding:2px; flex-shrink:0;
+  &:hover { color:#EF4444; }
+  mat-icon { font-size:16px; }
+}
+
+.np-empty {
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:8px; padding:40px;
+  color:#94A3B8; text-align:center;
+  mat-icon { font-size:40px; width:40px; height:40px; color:#CBD5E1; }
+  p { margin:0; font-size:0.82rem; }
+}
+
+// User chip
+.user-chip {
+  display:flex; align-items:center; gap:10px;
+  padding:6px 10px 6px 6px; border-radius:10px; cursor:pointer;
+  transition:background 0.2s;
+  &:hover { background:#F8FAFC; }
+}
+
+.user-avatar {
+  width:34px; height:34px; border-radius:50%;
+  background:linear-gradient(135deg,#2563EB,#7C3AED);
+  color:white; font-weight:700; font-size:0.9rem;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+
+.user-info { display:flex; flex-direction:column; }
+.user-name { font-size:0.82rem; font-weight:700; color:#0F172A; line-height:1.2; }
+.user-role { font-size:0.68rem; color:#2563EB; text-transform:capitalize; }
+.chevron   { font-size:16px; color:#94A3B8; }

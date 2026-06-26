@@ -1,0 +1,184 @@
+<div class="attendance-page">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Mark Attendance</h2>
+      <p class="page-sub">Select class, subject and date to mark attendance</p>
+    </div>
+  </div>
+
+  <!-- Filter Card -->
+  <div class="filter-card">
+    <div class="filter-grid" [formGroup]="filterForm">
+
+      <!-- Class Selector -->
+      <mat-form-field appearance="outline">
+        <mat-label>Select Class</mat-label>
+        <mat-icon matPrefix>class</mat-icon>
+        <mat-select formControlName="classId"
+  (selectionChange)="onClassChange()">
+         <mat-option *ngFor="let cls of classes" [value]="cls.id">
+  {{ cls.name }} {{ cls.section }}
+</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Subject Selector -->
+      <mat-form-field appearance="outline">
+        <mat-label>Select Subject</mat-label>
+        <mat-icon matPrefix>menu_book</mat-icon>
+        <mat-select formControlName="subjectId" (selectionChange)="loadStudents()">
+          <mat-option *ngFor="let sub of subjects" [value]="sub.id">
+    {{ sub.name }}
+  </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Date Picker -->
+      <mat-form-field appearance="outline">
+        <mat-label>Date</mat-label>
+        <mat-icon matPrefix>calendar_today</mat-icon>
+        <input
+          matInput
+          [matDatepicker]="picker"
+          [(ngModel)]="selectedDate"
+          [max]="maxDate"
+          (dateChange)="onDateChange($event)"
+        />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading students...</p>
+  </div>
+
+  <!-- Prompt -->
+  <div class="empty-prompt" *ngIf="!isLoading() && !studentsLoaded()">
+    <mat-icon>people</mat-icon>
+    <h3>Select Class & Subject</h3>
+    <p>Choose a class and subject above to load the student roster.</p>
+  </div>
+
+  <!-- Attendance Grid -->
+  <div class="attendance-grid-card" *ngIf="studentsLoaded() && !isLoading()">
+
+    <!-- Stats + Actions -->
+    <div class="grid-header">
+      <div class="stats-row">
+        <div class="stat-chip present">
+          <mat-icon>check_circle</mat-icon>
+          {{ getStatusCount('Present') }} Present
+        </div>
+        <div class="stat-chip absent">
+          <mat-icon>cancel</mat-icon>
+          {{ getStatusCount('Absent') }} Absent
+        </div>
+        <div class="stat-chip late">
+          <mat-icon>schedule</mat-icon>
+          {{ getStatusCount('Late') }} Late
+        </div>
+        <div class="stat-chip leave">
+          <mat-icon>event_busy</mat-icon>
+          {{ getStatusCount('OnLeave') }} On Leave
+        </div>
+      </div>
+
+      <div class="bulk-actions">
+        <button mat-stroked-button color="primary" (click)="markAllPresent()">
+          <mat-icon>done_all</mat-icon>
+          All Present
+        </button>
+        <button mat-stroked-button color="warn" (click)="markAllAbsent()">
+          <mat-icon>remove_done</mat-icon>
+          All Absent
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="students-table">
+
+      <!-- Header -->
+      <div class="table-header">
+        <span class="col-roll">Roll No</span>
+        <span class="col-name">Student Name</span>
+        <span class="col-status">Status</span>
+        <span class="col-remarks">Remarks (optional)</span>
+      </div>
+
+      <!-- Student Rows -->
+      <div
+        class="student-row"
+        *ngFor="let student of students; let i = index"
+        [class.absent-row]="student.status === 'Absent'"
+        [class.late-row]="student.status === 'Late'">
+
+        <!-- Roll -->
+        <span class="col-roll">
+          <span class="roll-badge">{{ student.rollNumber }}</span>
+        </span>
+
+        <!-- Name -->
+        <span class="col-name">
+          <div class="student-avatar">
+            {{ student.studentName.charAt(0) }}
+          </div>
+          <span class="student-name">{{ student.studentName }}</span>
+        </span>
+
+        <!-- Status Buttons -->
+        <span class="col-status">
+          <div class="status-btns">
+            <button
+              *ngFor="let opt of statusOptions"
+              class="status-btn"
+              [class.active]="student.status === opt.value"
+              [style.--btn-color]="opt.color"
+              (click)="setStatus(student.studentId, opt.value)"
+              [matTooltip]="opt.value">
+              {{ opt.label }}
+            </button>
+          </div>
+        </span>
+
+        <!-- Remarks -->
+        <span class="col-remarks">
+          <input
+            class="remarks-input"
+            [(ngModel)]="student.remarks"
+            placeholder="Add remark..."
+            [disabled]="student.status === 'Present'"
+          />
+        </span>
+
+      </div>
+    </div>
+
+    <!-- Submit Footer -->
+    <div class="submit-footer">
+      <span class="submit-info">
+        <mat-icon>info</mat-icon>
+        {{ students.length }} students · {{ selectedDate | date:'mediumDate' }}
+      </span>
+      <button
+        mat-raised-button
+        color="primary"
+        class="submit-btn"
+        [disabled]="isSubmitting()"
+        (click)="submitAttendance()">
+        <mat-spinner *ngIf="isSubmitting()" diameter="18"></mat-spinner>
+        <mat-icon *ngIf="!isSubmitting()">save</mat-icon>
+        {{ isSubmitting() ? 'Saving...' : 'Submit Attendance' }}
+      </button>
+    </div>
+
+  </div>
+
+</div>

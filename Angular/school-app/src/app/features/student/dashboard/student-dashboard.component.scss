@@ -1,0 +1,73 @@
+.student-dash {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 900px;
+}
+
+.loading-state { display:flex; justify-content:center; padding:80px; }
+
+.welcome-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #14532D, #16A34A 60%, #0D9488);
+  border-radius: 16px;
+  padding: 24px;
+  color: white;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.wb-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  h2 { font-size:1.2rem; font-weight:700; margin:0 0 4px; }
+  p  { font-size:0.875rem; opacity:0.75; margin:0; }
+}
+
+.wb-avatar {
+  width:52px; height:52px; border-radius:50%;
+  background:rgba(255,255,255,0.2); color:white;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.4rem; font-weight:800; flex-shrink:0;
+}
+
+.wb-stats { display:flex; gap:24px; }
+
+.wb-stat { text-align:center; }
+.wb-val  { display:block; font-size:1.5rem; font-weight:800; }
+.wb-lbl  { display:block; font-size:0.72rem; opacity:0.75; }
+
+.nav-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.nav-card {
+  background: white;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  border: 1px solid #F1F5F9;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.1); }
+}
+
+.nc-icon {
+  width:40px; height:40px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+
+  mat-icon { font-size:20px; width:20px; height:20px; }
+}
+
+.nc-label { flex:1; font-size:0.875rem; font-weight:600; color:#0F172A; }
+.nc-arrow { font-size:18px; width:18px; height:18px; color:#CBD5E1; }

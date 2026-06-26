@@ -1,0 +1,145 @@
+<div class="timetable-page">
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Timetable</h2>
+      <p class="page-sub">Weekly class schedule</p>
+    </div>
+    <button mat-raised-button color="primary"
+      *ngIf="isPrincipal()"
+      (click)="showCreate.set(!showCreate())">
+      <mat-icon>{{ showCreate() ? 'close' : 'add' }}</mat-icon>
+      {{ showCreate() ? 'Cancel' : 'Add Slot' }}
+    </button>
+  </div>
+
+  <!-- Create Form (Principal only) -->
+  <div class="create-card" *ngIf="showCreate() && isPrincipal()">
+    <h3 class="form-title">Add Timetable Slot</h3>
+    <div class="form-grid" [formGroup]="createForm">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Class</mat-label>
+        <mat-select formControlName="classId">
+          <mat-option *ngFor="let c of classes" [value]="c.id">
+            {{ c.name }} {{ c.section }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Subject</mat-label>
+        <mat-select formControlName="subjectId">
+          <mat-option *ngFor="let s of subjects" [value]="s.id">{{ s.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Teacher</mat-label>
+        <mat-select formControlName="teacherId">
+          <mat-option *ngFor="let t of teachers" [value]="t.id">{{ t.fullName }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Day</mat-label>
+        <mat-select formControlName="dayOfWeek">
+          <mat-option *ngFor="let d of days" [value]="d.value">{{ d.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Period</mat-label>
+        <mat-select formControlName="periodNumber">
+          <mat-option *ngFor="let p of periods" [value]="p">Period {{ p }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Start Time (e.g. 08:00)</mat-label>
+        <input matInput formControlName="startTime" placeholder="08:00"/>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>End Time (e.g. 08:45)</mat-label>
+        <input matInput formControlName="endTime" placeholder="08:45"/>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Academic Year</mat-label>
+        <input matInput formControlName="academicYear"/>
+      </mat-form-field>
+
+    </div>
+    <div class="form-footer">
+      <button mat-raised-button color="primary"
+        [disabled]="isCreating()"
+        (click)="createSlot()">
+        <mat-spinner *ngIf="isCreating()" diameter="18"></mat-spinner>
+        <mat-icon *ngIf="!isCreating()">save</mat-icon>
+        {{ isCreating() ? 'Saving...' : 'Add Slot' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter: pick class to view OR auto-load for teacher -->
+  <div class="filter-row">
+    <ng-container *ngIf="isPrincipal()">
+      <mat-form-field appearance="outline" class="class-filter">
+        <mat-label>View Timetable For Class</mat-label>
+        <mat-select
+  [value]="filterClassId"
+  (selectionChange)="filterClassId = $event.value; loadTimetable()">
+          <mat-option *ngFor="let c of classes" [value]="c.id">
+            {{ c.name }} {{ c.section }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </ng-container>
+
+    <ng-container *ngIf="!isPrincipal()">
+      <button mat-raised-button color="primary"
+        (click)="loadMyTimetable()">
+        <mat-icon>refresh</mat-icon>
+        Load My Timetable
+      </button>
+    </ng-container>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Timetable Grid -->
+  <div class="timetable-grid" *ngIf="!isLoading() && timetable.length > 0">
+    <div class="day-block" *ngFor="let day of orderedDays">
+      <div class="day-header">{{ day }}</div>
+      <div class="slots">
+        <div
+          class="slot-card"
+          *ngFor="let slot of groupedByDay.get(day)">
+          <div class="slot-period">P{{ slot.periodNumber }}</div>
+          <div class="slot-info">
+            <strong>{{ slot.subjectName }}</strong>
+            <span>{{ slot.teacherName }}</span>
+            <span class="slot-time">{{ slot.startTime }} – {{ slot.endTime }}</span>
+          </div>
+          <button mat-icon-button color="warn"
+            *ngIf="isPrincipal()"
+            (click)="deleteSlot(slot.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading() && timetable.length === 0">
+    <mat-icon>calendar_today</mat-icon>
+    <h3>No timetable yet</h3>
+    <p *ngIf="isPrincipal()">Click "Add Slot" to create the timetable.</p>
+    <p *ngIf="!isPrincipal()">Click "Load My Timetable" to view your schedule.</p>
+  </div>
+
+</div>

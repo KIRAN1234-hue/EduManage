@@ -1,0 +1,148 @@
+<div class="audit-page">
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Audit Log</h2>
+      <p class="page-sub">
+        Complete activity history — {{ total | number }} records
+      </p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card">
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Entity</mat-label>
+      <mat-select [(ngModel)]="filterEntity">
+        <mat-option value="">All Entities</mat-option>
+        <mat-option *ngFor="let e of entities" [value]="e">
+          {{ e }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Action</mat-label>
+      <mat-select [(ngModel)]="filterAction">
+        <mat-option value="">All Actions</mat-option>
+        <mat-option *ngFor="let a of actions" [value]="a">
+          {{ a }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" (click)="applyFilters()">
+      <mat-icon>filter_list</mat-icon> Apply
+    </button>
+    <button mat-stroked-button (click)="clearFilters()">
+      <mat-icon>clear</mat-icon> Clear
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state"
+    *ngIf="!isLoading() && logs.length === 0">
+    <mat-icon>manage_search</mat-icon>
+    <h3>No audit logs found</h3>
+    <p>Try clearing the filters.</p>
+  </div>
+
+  <!-- Logs Table -->
+  <div class="logs-table" *ngIf="!isLoading() && logs.length > 0">
+    <div class="lt-header">
+      <span class="col-time">Time</span>
+      <span class="col-user">User</span>
+      <span class="col-action">Action</span>
+      <span class="col-entity">Entity</span>
+      <span class="col-id">Entity ID</span>
+      <span class="col-ip">IP Address</span>
+      <span class="col-expand"></span>
+    </div>
+
+    <ng-container *ngFor="let log of logs">
+      <div class="lt-row" (click)="toggleExpand(log.id)">
+
+        <span class="col-time">
+          {{ log.timestamp | date:'short' }}
+        </span>
+
+        <span class="col-user">
+          <div class="user-pill">
+            <div class="up-avatar">
+              {{ log.userName.charAt(0) }}
+            </div>
+            <div>
+              <span class="up-name">{{ log.userName }}</span>
+              <span class="up-email">{{ log.userEmail }}</span>
+            </div>
+          </div>
+        </span>
+
+        <span class="col-action">
+          <span class="action-pill"
+            [style.background]="getActionBg(log.action)"
+            [style.color]="getActionColor(log.action)">
+            {{ log.action }}
+          </span>
+        </span>
+
+        <span class="col-entity fw-bold">{{ log.entityName }}</span>
+
+        <span class="col-id monospace">
+          {{ log.entityId ? log.entityId.substring(0, 8) + '...' : '—' }}
+        </span>
+
+        <span class="col-ip monospace small">{{ log.ipAddress }}</span>
+
+        <span class="col-expand">
+          <mat-icon>
+            {{ expandedId === log.id ? 'expand_less' : 'expand_more' }}
+          </mat-icon>
+        </span>
+      </div>
+
+      <!-- Expanded row: show JSON values -->
+      <div class="lt-expanded" *ngIf="expandedId === log.id">
+        <div class="json-grid">
+          <div class="json-box" *ngIf="log.newValues">
+            <p class="json-label">New Values</p>
+            <pre class="json-pre">{{ formatJson(log.newValues) }}</pre>
+          </div>
+          <div class="json-box" *ngIf="log.oldValues">
+            <p class="json-label">Old Values</p>
+            <pre class="json-pre">{{ formatJson(log.oldValues) }}</pre>
+          </div>
+          <div class="json-box"
+            *ngIf="!log.newValues && !log.oldValues">
+            <p class="json-label">No data captured</p>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button mat-icon-button
+      [disabled]="page === 1"
+      (click)="goToPage(page - 1)">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+
+    <span class="page-info">
+      Page {{ page }} of {{ totalPages }}
+    </span>
+
+    <button mat-icon-button
+      [disabled]="page === totalPages"
+      (click)="goToPage(page + 1)">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+
+</div>

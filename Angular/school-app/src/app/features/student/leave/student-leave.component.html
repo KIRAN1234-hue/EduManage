@@ -1,0 +1,120 @@
+<div class="leave-page">
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Leave Applications</h2>
+      <p class="page-sub">Apply for leave and track your applications</p>
+    </div>
+    <button mat-raised-button color="primary"
+      (click)="showApplyForm.set(!showApplyForm())">
+      <mat-icon>{{ showApplyForm() ? 'close' : 'add' }}</mat-icon>
+      {{ showApplyForm() ? 'Cancel' : 'Apply for Leave' }}
+    </button>
+  </div>
+
+  <!-- Apply Form -->
+  <div class="apply-card" *ngIf="showApplyForm()">
+    <h3 class="form-title">New Leave Application</h3>
+    <div [formGroup]="applyForm" class="apply-form">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Leave Type</mat-label>
+        <mat-select formControlName="leaveType">
+          <mat-option *ngFor="let t of leaveTypes" [value]="t">{{ t }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>From Date</mat-label>
+        <input matInput [matDatepicker]="fp" formControlName="fromDate"/>
+        <mat-datepicker-toggle matSuffix [for]="fp"></mat-datepicker-toggle>
+        <mat-datepicker #fp></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>To Date</mat-label>
+        <input matInput [matDatepicker]="tp" formControlName="toDate"/>
+        <mat-datepicker-toggle matSuffix [for]="tp"></mat-datepicker-toggle>
+        <mat-datepicker #tp></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="span-2">
+        <mat-label>Reason</mat-label>
+        <textarea matInput formControlName="reason" rows="3"
+          placeholder="Explain the reason for leave..."></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="span-2">
+        <mat-label>Additional Remarks (optional)</mat-label>
+        <input matInput formControlName="remarks"/>
+      </mat-form-field>
+
+    </div>
+
+    <div class="form-footer">
+      <button mat-raised-button color="primary"
+        [disabled]="isApplying() || applyForm.invalid"
+        (click)="applyLeave()">
+        <mat-spinner *ngIf="isApplying()" diameter="18"></mat-spinner>
+        <mat-icon *ngIf="!isApplying()">send</mat-icon>
+        {{ isApplying() ? 'Submitting...' : 'Submit Application' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading / Empty -->
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading() && leaves.length === 0">
+    <mat-icon>event_busy</mat-icon>
+    <h3>No leave applications</h3>
+    <p>Your leave applications will appear here.</p>
+  </div>
+
+  <!-- Leave List -->
+  <div class="leaves-list" *ngIf="!isLoading()">
+    <div class="leave-card" *ngFor="let leave of leaves">
+
+      <div class="lc-header">
+        <div class="lc-type">
+          <mat-icon>event_busy</mat-icon>
+          {{ leave.leaveType }}
+        </div>
+        <span class="status-pill"
+          [style.background]="getStatusBg(leave.status)"
+          [style.color]="getStatusColor(leave.status)">
+          {{ leave.status }}
+        </span>
+      </div>
+
+      <div class="lc-dates">
+        <span>{{ leave.fromDate | date:'mediumDate' }}</span>
+        <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+        <span>{{ leave.toDate | date:'mediumDate' }}</span>
+        <span class="days-badge">{{ leave.totalDays }} day{{ leave.totalDays > 1 ? 's' : '' }}</span>
+      </div>
+
+      <p class="lc-reason">{{ leave.reason }}</p>
+
+      <div class="lc-approval" *ngIf="leave.approvalRemark || leave.approvedBy">
+        <mat-icon>{{ leave.status === 'Approved' ? 'check_circle' : 'cancel' }}</mat-icon>
+        <div>
+          <span class="approval-by" *ngIf="leave.approvedBy">
+            {{ leave.status === 'Approved' ? 'Approved' : 'Rejected' }} by {{ leave.approvedBy }}
+          </span>
+          <span class="approval-remark" *ngIf="leave.approvalRemark">
+            "{{ leave.approvalRemark }}"
+          </span>
+        </div>
+      </div>
+
+      <div class="lc-footer">
+        <span class="applied-on">Applied: {{ leave.appliedOn | date:'mediumDate' }}</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>

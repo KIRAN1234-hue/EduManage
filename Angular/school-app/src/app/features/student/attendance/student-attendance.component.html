@@ -1,0 +1,181 @@
+<div class="student-attendance">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">My Attendance</h2>
+      <p class="page-sub">Track your subject-wise attendance and stay above 75%</p>
+    </div>
+  </div>
+
+  <!-- Alert Banner -->
+  <div class="alert-banner" *ngIf="atRiskSubjects > 0">
+    <mat-icon>warning</mat-icon>
+    <div class="alert-text">
+      <strong>Attendance Alert!</strong>
+      {{ atRiskSubjects }} subject{{ atRiskSubjects > 1 ? 's are' : ' is' }}
+      below the 75% threshold. Please attend regularly.
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+
+    <div class="summary-card overall">
+      <div class="overall-ring">
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="42" fill="none"
+                  stroke="#E2E8F0" stroke-width="10"/>
+          <circle cx="50" cy="50" r="42" fill="none"
+                  [attr.stroke]="overallPercentage >= 75 ? '#16A34A' : '#DC2626'"
+                  stroke-width="10"
+                  stroke-linecap="round"
+                  [attr.stroke-dasharray]="'263.9'"
+                  [attr.stroke-dashoffset]="263.9 - (263.9 * overallPercentage / 100)"
+                  transform="rotate(-90 50 50)"/>
+        </svg>
+        <div class="ring-label">
+          <span class="ring-value">{{ overallPercentage }}%</span>
+          <span class="ring-title">Overall</span>
+        </div>
+      </div>
+      <div class="overall-info">
+        <h3>Overall Attendance</h3>
+        <p>{{ totalPresent }} attended out of {{ totalPresent + totalAbsent + totalLate }} classes</p>
+        <span class="status-badge"
+              [class.good]="overallPercentage >= 75"
+              [class.bad]="overallPercentage < 75">
+          {{ overallPercentage >= 75 ? '✓ Good Standing' : '⚠ Below Threshold' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon green"><mat-icon>check_circle</mat-icon></div>
+      <span class="stat-value">{{ totalPresent }}</span>
+      <span class="stat-label">Classes Attended</span>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon red"><mat-icon>cancel</mat-icon></div>
+      <span class="stat-value">{{ totalAbsent }}</span>
+      <span class="stat-label">Classes Missed</span>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon amber"><mat-icon>schedule</mat-icon></div>
+      <span class="stat-value">{{ totalLate }}</span>
+      <span class="stat-label">Times Late</span>
+    </div>
+
+  </div>
+
+  <!-- Subject Cards -->
+  <div class="section-header">
+    <h3>Subject-wise Breakdown</h3>
+  </div>
+
+  <div class="subject-grid">
+    <div
+      class="subject-card"
+      *ngFor="let subject of subjectPercentages"
+      [class.risk-amber]="subject.riskLevel === 'Amber'"
+      [class.risk-red]="subject.riskLevel === 'Red'">
+
+      <div class="subject-top">
+        <div class="subject-name-wrap">
+          <span class="subject-name">{{ subject.subjectName }}</span>
+          <div
+            class="risk-badge"
+            [style.background]="getRiskConfig(subject.riskLevel).bg"
+            [style.color]="getRiskConfig(subject.riskLevel).color">
+            <mat-icon>{{ getRiskConfig(subject.riskLevel).icon }}</mat-icon>
+            {{ subject.riskLevel }}
+          </div>
+        </div>
+        <span
+          class="subject-pct"
+          [style.color]="getRiskConfig(subject.riskLevel).color">
+          {{ subject.percentage }}%
+        </span>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="progress-track">
+        <div
+          class="progress-fill"
+          [style.width.%]="subject.percentage"
+          [style.background]="getRiskConfig(subject.riskLevel).color">
+        </div>
+        <!-- 75% threshold line -->
+        <div class="threshold-line" title="75% threshold"></div>
+      </div>
+
+      <div class="subject-stats">
+        <span class="ss-item present">{{ subject.presentCount + subject.lateCount }} P</span>
+        <span class="ss-item absent">{{ subject.absentCount }} A</span>
+        <span class="ss-item late">{{ subject.lateCount }} L</span>
+        <span class="ss-item total">{{ subject.totalClasses }} Total</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom row: Calendar + Trend -->
+  <div class="bottom-row">
+
+    <!-- Calendar -->
+    <div class="calendar-card">
+      <div class="cal-header">
+        <button mat-icon-button (click)="prevMonth()">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <h3>{{ getMonthName() }}</h3>
+        <button mat-icon-button (click)="nextMonth()">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <!-- Day labels -->
+      <div class="cal-weekdays">
+        <span *ngFor="let day of ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']">{{ day }}</span>
+      </div>
+
+      <!-- Days grid -->
+      <div class="cal-grid">
+        <div
+          class="cal-day"
+          *ngFor="let day of calendarDays"
+          [class.empty]="day.status === 'Empty'"
+          [class.weekend]="day.status === 'Weekend'"
+          [class.future]="day.status === 'Future'"
+          [class.present]="day.status === 'Present'"
+          [class.absent]="day.status === 'Absent'"
+          [class.late]="day.status === 'Late'">
+          <span *ngIf="day.date > 0">{{ day.date }}</span>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="cal-legend">
+        <div class="legend-item"><span class="legend-dot present"></span>Present</div>
+        <div class="legend-item"><span class="legend-dot absent"></span>Absent</div>
+        <div class="legend-item"><span class="legend-dot late"></span>Late</div>
+        <div class="legend-item"><span class="legend-dot weekend"></span>Weekend</div>
+      </div>
+    </div>
+
+    <!-- Trend Chart -->
+    <div class="trend-card">
+      <div class="card-header">
+        <h3>30-Day Attendance Trend</h3>
+        <p class="card-sub">Daily attendance percentage over last 30 days</p>
+      </div>
+      <div class="chart-body">
+        <canvas #trendChart></canvas>
+      </div>
+    </div>
+
+  </div>
+
+</div>

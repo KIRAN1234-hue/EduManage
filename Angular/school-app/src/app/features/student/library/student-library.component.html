@@ -1,0 +1,144 @@
+<div class="library-page">
+
+  <div class="page-header">
+    <h2 class="page-title">Library</h2>
+    <p class="page-sub">Browse books and track your issues</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'mybooks'"
+      (click)="activeTab = 'mybooks'">
+      <mat-icon>library_books</mat-icon>
+      My Books
+      <span class="badge" *ngIf="currentIssues.length > 0">{{ currentIssues.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'browse'"
+      (click)="activeTab = 'browse'">
+      <mat-icon>search</mat-icon>
+      Browse All
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'history'"
+      (click)="activeTab = 'history'">
+      <mat-icon>history</mat-icon>
+      History
+    </button>
+  </div>
+
+  <!-- My Books -->
+  <ng-container *ngIf="activeTab === 'mybooks'">
+    <div class="loading-state" *ngIf="isLoading()">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoading() && currentIssues.length === 0">
+      <mat-icon>menu_book</mat-icon>
+      <h3>No books currently issued</h3>
+      <p>Browse the library to find books.</p>
+    </div>
+
+    <div class="issues-grid" *ngIf="!isLoading()">
+      <div class="issue-card" *ngFor="let issue of currentIssues"
+        [class.overdue]="issue.isOverdue">
+
+        <div class="ic-header">
+          <span class="status-pill"
+            [style.background]="getStatusBg(issue.status)"
+            [style.color]="getStatusColor(issue.status)">
+            {{ issue.status }}
+          </span>
+          <span class="overdue-tag" *ngIf="issue.isOverdue">Overdue</span>
+        </div>
+
+        <h4 class="ic-title">{{ issue.bookTitle }}</h4>
+        <p class="ic-author">{{ issue.bookAuthor }}</p>
+
+        <div class="ic-meta">
+          <div class="meta-row">
+            <mat-icon>event</mat-icon>
+            <span>Issued: {{ issue.issuedAt | date:'mediumDate' }}</span>
+          </div>
+          <div class="meta-row" [class.due-red]="issue.isOverdue">
+            <mat-icon>event_busy</mat-icon>
+            <span>Due: {{ issue.dueDate | date:'mediumDate' }}</span>
+          </div>
+          <div class="meta-row fine" *ngIf="issue.fineAmount > 0">
+            <mat-icon>warning</mat-icon>
+            <span>Fine: ₹{{ issue.fineAmount }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Browse All Books -->
+  <ng-container *ngIf="activeTab === 'browse'">
+    <div class="search-wrap">
+      <mat-icon>search</mat-icon>
+      <input
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="filterBooks()"
+        placeholder="Search title, author, category..."
+        class="search-input"
+      />
+    </div>
+
+    <div class="books-grid">
+      <div class="book-card" *ngFor="let b of filteredBooks">
+        <div class="bc-top">
+          <span class="bc-cat">{{ b.category }}</span>
+          <span class="avail-badge" [class.unavail]="!b.isAvailable">
+            {{ b.isAvailable ? b.availableCopies + ' Available' : 'Not Available' }}
+          </span>
+        </div>
+        <h4 class="bc-title">{{ b.title }}</h4>
+        <p class="bc-author">{{ b.author }}</p>
+        <p class="bc-info">{{ b.publisher }} · {{ b.publishedYear }}</p>
+        <p class="bc-isbn">ISBN: {{ b.isbn }}</p>
+        <p class="bc-shelf" *ngIf="b.shelfLocation">
+          <mat-icon>location_on</mat-icon>{{ b.shelfLocation }}
+        </p>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="filteredBooks.length === 0">
+      <mat-icon>search_off</mat-icon>
+      <h3>No books found</h3>
+    </div>
+  </ng-container>
+
+  <!-- History -->
+  <ng-container *ngIf="activeTab === 'history'">
+    <div class="empty-state" *ngIf="returnedIssues.length === 0">
+      <mat-icon>history</mat-icon>
+      <h3>No returned books</h3>
+    </div>
+
+    <div class="history-list" *ngIf="returnedIssues.length > 0">
+      <div class="history-card" *ngFor="let issue of returnedIssues">
+        <div class="hc-left">
+          <div class="hc-avatar"><mat-icon>book</mat-icon></div>
+          <div>
+            <strong>{{ issue.bookTitle }}</strong>
+            <p>{{ issue.bookAuthor }}</p>
+          </div>
+        </div>
+        <div class="hc-right">
+          <div class="hc-dates">
+            <span>{{ issue.issuedAt | date:'mediumDate' }} → {{ issue.returnedAt | date:'mediumDate' }}</span>
+          </div>
+          <span class="fine-tag" *ngIf="issue.fineAmount > 0">
+            Fine paid: ₹{{ issue.fineAmount }}
+          </span>
+          <span class="status-pill"
+            [style.background]="getStatusBg(issue.status)"
+            [style.color]="getStatusColor(issue.status)">
+            {{ issue.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+</div>

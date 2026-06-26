@@ -1,0 +1,72 @@
+<aside class="sidebar" [class.collapsed]="!isOpen">
+
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <mat-icon>school</mat-icon>
+    </div>
+    <span class="logo-text" *ngIf="isOpen">EduManage</span>
+    <button class="toggle-btn" (click)="toggleSidebar.emit()">
+      <mat-icon>{{ isOpen ? 'chevron_left' : 'chevron_right' }}</mat-icon>
+    </button>
+  </div>
+
+  <!-- User Info -->
+  <div class="user-info" *ngIf="isOpen">
+    <div class="user-avatar">
+      <mat-icon>account_circle</mat-icon>
+    </div>
+    <div class="user-details" *ngIf="user$ | async as user">
+      <span class="user-name">{{ user.fullName }}</span>
+      <span class="user-role">{{ user.role }}</span>
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div class="sidebar-divider"></div>
+
+  <!-- Navigation -->
+  <!-- Navigation -->
+<nav class="sidebar-nav">
+
+  <a
+    *ngFor="let item of navItems"
+    class="nav-item"
+    [class.active]="isActive(item.route)"
+    [routerLink]="item.route"
+    [matTooltip]="!isOpen ? item.label : ''"
+    matTooltipPosition="right">
+
+    <div class="nav-icon">
+      <mat-icon>{{ item.icon }}</mat-icon>
+    </div>
+
+    <span class="nav-label" *ngIf="isOpen">
+      {{ item.label }}
+    </span>
+
+    <span class="nav-badge" *ngIf="item.badge && isOpen">
+      {{ item.badge }}
+    </span>
+
+  </a>
+
+</nav>
+
+  <!-- Spacer -->
+  <div class="sidebar-spacer"></div>
+
+  <!-- Logout -->
+  <div class="sidebar-divider"></div>
+  <button
+    class="nav-item logout-btn"
+    (click)="onLogout()"
+    [matTooltip]="!isOpen ? 'Logout' : ''"
+    matTooltipPosition="right">
+    <div class="nav-icon">
+      <mat-icon>logout</mat-icon>
+    </div>
+    <span class="nav-label" *ngIf="isOpen">Logout</span>
+  </button>
+
+</aside>

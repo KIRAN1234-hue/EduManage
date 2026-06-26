@@ -1,0 +1,32 @@
+.complaints-page { display:flex; flex-direction:column; gap:20px; max-width:900px; }
+.page-title { font-size:1.4rem; font-weight:800; color:#0F172A; margin:0 0 2px; }
+.page-sub   { font-size:0.875rem; color:#64748B; margin:0; }
+.page-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+.loading-state { display:flex; justify-content:center; padding:60px; }
+.empty-state { display:flex; flex-direction:column; align-items:center; gap:12px; padding:60px; background:white; border-radius:16px; text-align:center; color:#94A3B8; mat-icon { font-size:48px; width:48px; height:48px; color:#CBD5E1; } h3 { color:#374151; margin:0; } p { margin:0; font-size:0.875rem; } }
+
+.form-card { background:white; border-radius:16px; padding:24px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border:1px solid #F1F5F9; }
+.card-title { font-size:0.95rem; font-weight:700; color:#0F172A; margin:0 0 16px; }
+.comp-form  { display:flex; flex-direction:column; gap:10px; }
+.full-w     { width:100%; }
+
+.complaints-list { display:flex; flex-direction:column; gap:12px; }
+
+.complaint-card {
+  background:white; border-radius:14px; padding:20px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.07); border:1px solid #F1F5F9;
+  display:flex; flex-direction:column; gap:12px;
+}
+
+.cc-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.cc-left   { display:flex; flex-direction:column; gap:4px; }
+.cc-category { font-size:0.72rem; font-weight:700; color:#7C3AED; background:#EDE9FE; padding:2px 8px; border-radius:20px; width:fit-content; }
+.cc-title    { font-size:0.95rem; font-weight:700; color:#0F172A; margin:0; }
+
+.status-pill { display:flex; align-items:center; gap:4px; padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:700; mat-icon { font-size:14px; width:14px; height:14px; } }
+
+.cc-desc { font-size:0.875rem; color:#374151; margin:0; line-height:1.5; }
+
+.cc-meta { display:flex; gap:16px; flex-wrap:wrap; font-size:0.78rem; color:#64748B; span { display:flex; align-items:center; gap:4px; } mat-icon { font-size:14px; width:14px; height:14px; } }
+
+.resolution-remark { display:flex; align-items:flex-start; gap:8px; background:#F0FDF4; border-radius:10px; padding:12px; mat-icon { color:#16A34A; flex-shrink:0; } p { font-size:0.82rem; color:#166534; margin:0; font-style:italic; } }

@@ -1,0 +1,81 @@
+<div class="reg-page">
+  <div class="reg-card">
+
+    <div class="reg-logo">
+      <div class="logo-circle">
+        <mat-icon>school</mat-icon>
+      </div>
+      <h1>EduManage</h1>
+    </div>
+
+    <!-- Success State -->
+    <div class="success-state" *ngIf="isSuccess()">
+      <div class="success-icon"><mat-icon>check_circle</mat-icon></div>
+      <h2>Registration Successful!</h2>
+      <p>Your teacher account has been activated. Redirecting to login...</p>
+    </div>
+
+    <!-- Form -->
+    <div *ngIf="!isSuccess()">
+      <div class="reg-header">
+        <h2>Teacher Registration</h2>
+        <p>Complete your account setup using the invite token shared by the principal.</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Your Email Address</mat-label>
+          <mat-icon matPrefix>email</mat-icon>
+          <input matInput type="email" formControlName="email"/>
+          <mat-error *ngIf="form.get('email')?.hasError('required')">Email is required</mat-error>
+          <mat-error *ngIf="form.get('email')?.hasError('email')">Enter a valid email</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Invite Token</mat-label>
+          <mat-icon matPrefix>vpn_key</mat-icon>
+          <input matInput formControlName="inviteToken" placeholder="Paste token from principal"/>
+          <mat-error *ngIf="form.get('inviteToken')?.hasError('required')">
+            Invite token is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Set Your Password</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input
+            matInput
+            [type]="hidePassword ? 'password' : 'text'"
+            formControlName="newPassword"
+          />
+          <button mat-icon-button matSuffix type="button"
+            (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-hint>Minimum 8 characters, include uppercase and number</mat-hint>
+          <mat-error *ngIf="form.get('newPassword')?.hasError('minlength')">
+            Minimum 8 characters
+          </mat-error>
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          type="submit"
+          class="submit-btn"
+          [disabled]="isLoading()">
+          <mat-spinner *ngIf="isLoading()" diameter="20"></mat-spinner>
+          <mat-icon *ngIf="!isLoading()">how_to_reg</mat-icon>
+          {{ isLoading() ? 'Activating...' : 'Activate Account' }}
+        </button>
+
+      </form>
+
+      <p class="back-link">
+        Already registered?
+        <a (click)="router.navigate(['/login'])">Sign in here</a>
+      </p>
+    </div>
+
+  </div>
+</div>

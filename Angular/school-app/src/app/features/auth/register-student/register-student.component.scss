@@ -1,0 +1,87 @@
+// Same as register-teacher.component.scss
+// Just change .reg-page background gradient:
+.reg-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #14532D 0%, #16A34A 60%, #0D9488 100%);
+  padding: 24px;
+}
+
+.reg-card {
+  width: 100%;
+  max-width: 460px;
+  background: white;
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+}
+
+.reg-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+
+  h1 { font-size: 1.3rem; font-weight: 800; color: #0F172A; margin: 0; }
+}
+
+.logo-circle {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, #16A34A, #0D9488);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon { color: white; font-size: 28px; width: 28px; height: 28px; }
+}
+
+.reg-header {
+  margin-bottom: 24px;
+  text-align: center;
+
+  h2 { font-size: 1.4rem; font-weight: 800; color: #0F172A; margin: 0 0 6px; }
+  p  { font-size: 0.85rem; color: #64748B; margin: 0; line-height: 1.5; }
+}
+
+.full-width { width: 100%; margin-bottom: 4px; }
+
+.submit-btn {
+  width: 100%;
+  height: 50px;
+  margin-top: 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #16A34A, #0D9488) !important;
+  color: white !important;
+  border-radius: 12px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.back-link {
+  text-align: center;
+  font-size: 0.82rem;
+  color: #94A3B8;
+  margin: 16px 0 0;
+
+  a { color: #16A34A; cursor: pointer; font-weight: 600; }
+}
+
+.success-state {
+  text-align: center;
+  padding: 16px 0;
+
+  .success-icon mat-icon {
+    font-size: 64px; width: 64px; height: 64px; color: #16A34A;
+  }
+
+  h2 { font-size: 1.3rem; font-weight: 700; color: #0F172A; margin: 12px 0 8px; }
+  p  { color: #64748B; font-size: 0.875rem; }
+}

@@ -1,0 +1,383 @@
+<div class="fees-page">
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Fee Management</h2>
+      <p class="page-sub">Manage fee structures and record payments</p>
+    </div>
+  </div>
+
+  <mat-tab-group animationDuration="200ms">
+
+    <!-- ── Tab 1: Fee Structures ─────────────────────────────────── -->
+    <mat-tab label="Fee Structures">
+      <div class="tab-content">
+
+        <!-- Create Form -->
+        <div class="card">
+          <h3 class="card-title">Create Fee Structure</h3>
+          <div class="form-grid" [formGroup]="structureForm">
+
+            <mat-form-field appearance="outline">
+              <mat-label>Class</mat-label>
+              <mat-select formControlName="classId">
+                <mat-option *ngFor="let c of classes" [value]="c.id">
+                  {{ c.name }} {{ c.section }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Term Name</mat-label>
+              <mat-select formControlName="termName">
+                <mat-option value="Term 1">Term 1</mat-option>
+                <mat-option value="Term 2">Term 2</mat-option>
+                <mat-option value="Term 3">Term 3</mat-option>
+                <mat-option value="Annual">Annual</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Amount (₹)</mat-label>
+              <input matInput type="number" formControlName="amount"/>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Due Date</mat-label>
+              <input matInput [matDatepicker]="dp" formControlName="dueDate"/>
+              <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+              <mat-datepicker #dp></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Academic Year</mat-label>
+              <input matInput formControlName="academicYear"/>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Description (optional)</mat-label>
+              <input matInput formControlName="description"/>
+            </mat-form-field>
+
+            <div class="checkbox-row">
+              <mat-checkbox formControlName="discountAllowed">
+                Discount Allowed
+              </mat-checkbox>
+            </div>
+
+          </div>
+          <div class="form-footer">
+            <button mat-raised-button color="primary"
+              [disabled]="isCreatingStructure()"
+              (click)="createStructure()">
+              <mat-spinner *ngIf="isCreatingStructure()" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="!isCreatingStructure()">add</mat-icon>
+              {{ isCreatingStructure() ? 'Creating...' : 'Create Structure' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Structures List -->
+        <div class="loading-state" *ngIf="isLoadingStructures()">
+          <mat-spinner diameter="36"></mat-spinner>
+        </div>
+
+        <div class="empty-state"
+          *ngIf="!isLoadingStructures() && structures.length === 0">
+          <mat-icon>payments</mat-icon>
+          <h3>No fee structures yet</h3>
+        </div>
+
+        <div class="structures-table" *ngIf="!isLoadingStructures() && structures.length > 0">
+          <div class="st-header">
+            <span>Class</span>
+            <span>Term</span>
+            <span>Amount</span>
+            <span>Due Date</span>
+            <span>Collected</span>
+            <span>Status</span>
+            <span>Action</span>
+          </div>
+          <div class="st-row" *ngFor="let s of structures">
+            <span class="fw-bold">{{ s.className }}</span>
+            <span>{{ s.termName }}</span>
+            <span class="amount">₹{{ s.amount | number }}</span>
+            <span>{{ s.dueDate | date:'mediumDate' }}</span>
+            <span class="collected">₹{{ s.totalCollected | number }}</span>
+            <span>
+              <span class="status-pill overdue" *ngIf="s.isOverdue">Overdue</span>
+              <span class="status-pill active" *ngIf="!s.isOverdue">Active</span>
+            </span>
+            <span>
+              <button mat-icon-button color="primary"
+                (click)="viewPayments(s.id)">
+                <mat-icon>visibility</mat-icon>
+              </button>
+            </span>
+          </div>
+        </div>
+
+        <!-- Payments for selected structure -->
+        <div class="card" *ngIf="selectedStructureId">
+          <h3 class="card-title">
+            Payments
+            <button mat-icon-button (click)="selectedStructureId = ''; payments = []">
+              <mat-icon>close</mat-icon>
+            </button>
+          </h3>
+          <div class="loading-state" *ngIf="isLoadingPayments()">
+            <mat-spinner diameter="32"></mat-spinner>
+          </div>
+          <div class="empty-state" *ngIf="!isLoadingPayments() && payments.length === 0">
+            <p>No payments recorded yet.</p>
+          </div>
+          <div class="payments-table" *ngIf="payments.length > 0">
+            <div class="pt-header">
+              <span>Student</span>
+              <span>Amount</span>
+              <span>Method</span>
+              <span>Date</span>
+              <span>Receipt</span>
+              <span>Status</span>
+            </div>
+            <div class="pt-row" *ngFor="let p of payments">
+              <span>
+                <strong>{{ p.studentName }}</strong>
+                <small>{{ p.rollNumber }}</small>
+              </span>
+              <span>₹{{ p.netAmount | number }}</span>
+              <span>{{ p.paymentMethod }}</span>
+              <span>{{ p.paymentDate | date:'mediumDate' }}</span>
+              <span class="receipt">{{ p.receiptNumber }}</span>
+              <span>
+                <span class="status-pill"
+                  [style.background]="getStatusBg(p.status)"
+                  [style.color]="getStatusColor(p.status)">
+                  {{ p.status }}
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Record Payment">
+  <div class="tab-content">
+
+    <!-- Step 1: Class + Student selectors -->
+    <div class="card">
+      <h3 class="card-title">Select Student</h3>
+      <div class="two-col">
+
+        <mat-form-field appearance="outline">
+          <mat-label>Class</mat-label>
+          <mat-select
+            [(ngModel)]="selectedClassForPayment"
+            (selectionChange)="onPaymentClassChange($event.value)">
+            <mat-option *ngFor="let c of classes" [value]="c.id">
+              {{ c.name }} {{ c.section }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Student</mat-label>
+          <mat-select
+            [(ngModel)]="selectedStudentForPayment"
+            [disabled]="studentsForPayment.length === 0"
+            (selectionChange)="onPaymentStudentChange($event.value)">
+            <mat-option *ngFor="let s of studentsForPayment" [value]="s.id">
+              {{ s.fullName }} ({{ s.rollNumber }})
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="balance-checking" *ngIf="isLoadingPaymentStatus()">
+      <mat-spinner diameter="24"></mat-spinner>
+      <span>Fetching fee status for student...</span>
+    </div>
+
+    <!-- Empty state — no student selected yet -->
+    <div class="select-prompt"
+      *ngIf="!isLoadingPaymentStatus() && !paymentFeeStatus()">
+      <mat-icon>person_search</mat-icon>
+      <p>Select a class and student to see their fee status</p>
+    </div>
+
+    <!-- Fee Terms for selected student -->
+    <ng-container *ngIf="!isLoadingPaymentStatus() && paymentFeeStatus() as status">
+
+      <!-- Student summary header -->
+      <div class="student-fee-header">
+        <div class="sfh-info">
+          <div class="sfh-avatar">{{ status.studentName.charAt(0) }}</div>
+          <div>
+            <strong>{{ status.studentName }}</strong>
+            <span>{{ status.rollNumber }} · {{ status.className }}</span>
+          </div>
+        </div>
+        <div class="sfh-summary">
+          <div class="sfhs-item">
+            <span class="sfhs-label">Total Due</span>
+            <span class="sfhs-val">₹{{ status.totalDue | number }}</span>
+          </div>
+          <div class="sfhs-item green">
+            <span class="sfhs-label">Paid</span>
+            <span class="sfhs-val">₹{{ status.totalPaid | number }}</span>
+          </div>
+          <div class="sfhs-item" [class.red]="status.balance > 0">
+            <span class="sfhs-label">Balance</span>
+            <span class="sfhs-val">₹{{ status.balance | number }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Term Cards -->
+      <div class="terms-payment-list">
+        <div
+          class="term-payment-card"
+          *ngFor="let term of status.terms"
+          [class.term-paid]="term.status === 'Paid'"
+          [class.term-overdue]="term.status === 'Overdue'">
+
+          <!-- Term Header -->
+          <div class="tpc-header">
+            <div class="tpc-left">
+              <div class="tpc-name">
+                <mat-icon>receipt</mat-icon>
+                {{ term.termName }}
+              </div>
+              <div class="tpc-amounts">
+                <span class="tpc-total">₹{{ term.amount | number }}</span>
+                <span class="tpc-paid">Paid: ₹{{ term.paid | number }}</span>
+                <span class="tpc-remaining" *ngIf="term.status !== 'Paid'">
+                  Remaining: <strong>₹{{ term.amount - term.paid | number }}</strong>
+                </span>
+              </div>
+            </div>
+            <div class="tpc-right">
+              <span class="status-pill"
+                [style.background]="getStatusBg(term.status)"
+                [style.color]="getStatusColor(term.status)">
+                {{ term.status }}
+              </span>
+              <span class="receipt-no" *ngIf="term.receiptNumber">
+                {{ term.receiptNumber }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Progress bar -->
+          <div class="tpc-bar">
+            <div class="tpc-fill"
+              [style.width.%]="getTermPaidPercent(term)"
+              [style.background]="getStatusColor(term.status)">
+            </div>
+          </div>
+
+          <!-- Paid checkmark -->
+          <div class="tpc-fully-paid" *ngIf="term.status === 'Paid'">
+            <mat-icon>check_circle</mat-icon>
+            Fully paid on {{ term.dueDate | date:'mediumDate' }}
+          </div>
+
+          <!-- Record Payment button for non-paid terms -->
+          <ng-container *ngIf="term.status !== 'Paid'">
+            <button mat-stroked-button color="primary"
+              class="record-btn"
+              (click)="toggleTermPayment(term.feeStructureId)">
+              <mat-icon>
+                {{ expandedTermId() === term.feeStructureId ? 'expand_less' : 'add_circle' }}
+              </mat-icon>
+              {{ expandedTermId() === term.feeStructureId ? 'Cancel' : 'Record Payment' }}
+            </button>
+
+            <!-- Inline Payment Form -->
+            <div class="inline-payment-form"
+              *ngIf="expandedTermId() === term.feeStructureId"
+              [formGroup]="termPaymentForms[term.feeStructureId]">
+
+              <div class="remaining-notice">
+                <mat-icon>info</mat-icon>
+                Recording payment for <strong>{{ term.termName }}</strong> —
+                Max payable: <strong>₹{{ term.amount - term.paid | number }}</strong>
+              </div>
+
+              <div class="ipf-grid">
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Amount (₹)</mat-label>
+                  <input matInput type="number"
+                    formControlName="amount"
+                    [max]="term.amount - term.paid"
+                    min="1"/>
+                  <mat-hint>Max: ₹{{ term.amount - term.paid | number }}</mat-hint>
+                  <mat-error
+                    *ngIf="termPaymentForms[term.feeStructureId].get('amount')?.hasError('max')">
+                    Cannot exceed ₹{{ term.amount - term.paid | number }}
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Discount (₹)</mat-label>
+                  <input matInput type="number" formControlName="discountAmount"/>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Payment Method</mat-label>
+                  <mat-select formControlName="paymentMethod">
+                    <mat-option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Remarks / Receipt Info</mat-label>
+                  <input matInput formControlName="remarks"
+                    placeholder="Cheque no / Transaction ID"/>
+                </mat-form-field>
+
+              </div>
+
+              <div class="ipf-footer">
+                <div class="net-preview">
+                  Net amount:
+                  <strong>₹{{ ((termPaymentForms[term.feeStructureId].get('amount')?.value || 0) -
+                    (termPaymentForms[term.feeStructureId].get('discountAmount')?.value || 0)) | number }}
+                  </strong>
+                </div>
+                <button mat-raised-button color="primary"
+                  [disabled]="isSubmittingTerm() === term.feeStructureId ||
+             termPaymentForms[term.feeStructureId].invalid"
+                  (click)="recordTermPayment(term)">
+                  <mat-spinner
+                    *ngIf="isSubmittingTerm() === term.feeStructureId"
+                    diameter="18">
+                  </mat-spinner>
+                  <mat-icon *ngIf="isSubmittingTerm() !== term.feeStructureId">
+                    receipt
+                  </mat-icon>
+                  {{ isSubmittingTerm() === term.feeStructureId
+                    ? 'Recording...' : 'Confirm & Record' }}
+                </button>
+              </div>
+
+            </div>
+          </ng-container>
+
+        </div>
+      </div>
+
+    </ng-container>
+
+  </div>
+</mat-tab>
+
+  </mat-tab-group>
+
+</div>

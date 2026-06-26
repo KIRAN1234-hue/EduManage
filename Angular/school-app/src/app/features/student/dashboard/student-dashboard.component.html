@@ -1,0 +1,84 @@
+<div class="student-dash">
+
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <ng-container *ngIf="!isLoading()">
+
+    <!-- Welcome banner -->
+    <div class="welcome-banner" *ngIf="user$ | async as user">
+      <div class="wb-left">
+        <div class="wb-avatar">{{ user.fullName ? user.fullName.charAt(0) : '' }}</div>
+        <div>
+          <h2>Hello, {{ user.fullName }}!</h2>
+          <p>Student</p>
+        </div>
+      </div>
+      <div class="wb-stats" *ngIf="stats() as data">
+        <div class="wb-stat">
+          <span class="wb-val">{{ data.attendanceTodayPercent }}%</span>
+          <span class="wb-lbl">Attendance</span>
+        </div>
+        <div class="wb-stat">
+          <span class="wb-val">{{ data.pendingLeaveApplications }}</span>
+          <span class="wb-lbl">Pending Leaves</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick nav cards -->
+    <div class="nav-grid">
+      <div class="nav-card" (click)="navigateTo('/student/attendance')">
+        <div class="nc-icon" style="background:#DBEAFE">
+          <mat-icon style="color:#2563EB">fact_check</mat-icon>
+        </div>
+        <span class="nc-label">My Attendance</span>
+        <mat-icon class="nc-arrow">chevron_right</mat-icon>
+      </div>
+      <div class="nav-card" (click)="navigateTo('/student/marks')">
+        <div class="nc-icon" style="background:#DCFCE7">
+          <mat-icon style="color:#16A34A">grade</mat-icon>
+        </div>
+        <span class="nc-label">Report Card</span>
+        <mat-icon class="nc-arrow">chevron_right</mat-icon>
+      </div>
+      <div class="nav-card" (click)="navigateTo('/student/assignments')">
+        <div class="nc-icon" style="background:#EDE9FE">
+          <mat-icon style="color:#7C3AED">assignment</mat-icon>
+        </div>
+        <span class="nc-label">Assignments</span>
+        <mat-icon class="nc-arrow">chevron_right</mat-icon>
+      </div>
+      <div class="nav-card" (click)="navigateTo('/student/leave')">
+        <div class="nc-icon" style="background:#FEE2E2">
+          <mat-icon style="color:#DC2626">event_busy</mat-icon>
+        </div>
+        <span class="nc-label">Apply Leave</span>
+        <mat-icon class="nc-arrow">chevron_right</mat-icon>
+      </div>
+      <div class="nav-card" (click)="navigateTo('/student/notices')">
+        <div class="nc-icon" style="background:#FEF3C7">
+          <mat-icon style="color:#D97706">campaign</mat-icon>
+        </div>
+        <span class="nc-label">Notices</span>
+        <mat-icon class="nc-arrow">chevron_right</mat-icon>
+      </div>
+      <div class="nav-card" (click)="navigateTo('/student/timetable')">
+        <div class="nc-icon" style="background:#CFFAFE">
+          <mat-icon style="color:#0891B2">calendar_today</mat-icon>
+        </div>
+        <span class="nc-label">Timetable</span>
+        <mat-icon class="nc-arrow">chevron_right</mat-icon>
+      </div>
+      <div class="nav-card" (click)="navigateTo('/student/exams')">
+        <div class="nc-icon" style="background:#F0FDF4">
+          <mat-icon style="color:#16A34A">event_note</mat-icon>
+        </div>
+        <span class="nc-label">Exam Schedule</span>
+        <mat-icon class="nc-arrow">chevron_right</mat-icon>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

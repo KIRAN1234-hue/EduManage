@@ -1,0 +1,268 @@
+<div class="library-page">
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Library Management</h2>
+      <p class="page-sub">Manage books and student issues</p>
+    </div>
+    <div class="header-stats">
+      <span class="stat-pill">{{ books.length }} Books</span>
+      <span class="stat-pill warn" *ngIf="overdueIssues.length > 0">
+        {{ overdueIssues.length }} Overdue
+      </span>
+    </div>
+  </div>
+
+  <mat-tab-group animationDuration="200ms">
+
+    <!-- ── Tab 1: Books ─────────────────────────────────────────── -->
+    <mat-tab label="Books">
+      <div class="tab-content">
+
+        <div class="books-toolbar">
+          <div class="search-wrap">
+            <mat-icon>search</mat-icon>
+            <input
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="filterBooks()"
+              placeholder="Search by title, author, ISBN..."
+              class="search-input"
+            />
+          </div>
+          <button mat-raised-button color="primary"
+            (click)="showAddForm.set(!showAddForm())">
+            <mat-icon>{{ showAddForm() ? 'close' : 'add' }}</mat-icon>
+            {{ showAddForm() ? 'Cancel' : 'Add Book' }}
+          </button>
+        </div>
+
+        <!-- Add Book Form -->
+        <div class="card" *ngIf="showAddForm()">
+          <h3 class="card-title">Add New Book</h3>
+          <div class="form-grid" [formGroup]="addBookForm">
+            <mat-form-field appearance="outline" class="span-2">
+              <mat-label>Title</mat-label>
+              <input matInput formControlName="title"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Author</mat-label>
+              <input matInput formControlName="author"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>ISBN</mat-label>
+              <input matInput formControlName="isbn"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Category</mat-label>
+              <input matInput formControlName="category"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Publisher</mat-label>
+              <input matInput formControlName="publisher"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Published Year</mat-label>
+              <input matInput type="number" formControlName="publishedYear"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Total Copies</mat-label>
+              <input matInput type="number" formControlName="totalCopies"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Shelf Location</mat-label>
+              <input matInput formControlName="shelfLocation"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="span-2">
+              <mat-label>Description (optional)</mat-label>
+              <input matInput formControlName="description"/>
+            </mat-form-field>
+          </div>
+          <div class="form-footer">
+            <button mat-raised-button color="primary"
+              [disabled]="isAdding()" (click)="addBook()">
+              <mat-spinner *ngIf="isAdding()" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="!isAdding()">save</mat-icon>
+              {{ isAdding() ? 'Adding...' : 'Add Book' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Books Grid -->
+        <div class="loading-state" *ngIf="isLoading()">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+
+        <div class="books-grid" *ngIf="!isLoading()">
+          <div class="book-card" *ngFor="let b of filteredBooks">
+            <div class="bc-header">
+              <div class="bc-category">{{ b.category }}</div>
+              <span class="avail-badge" [class.unavailable]="!b.isAvailable">
+                {{ b.availableCopies }}/{{ b.totalCopies }} available
+              </span>
+            </div>
+            <h4 class="bc-title">{{ b.title }}</h4>
+            <p class="bc-author">{{ b.author }}</p>
+            <p class="bc-isbn">ISBN: {{ b.isbn }}</p>
+            <div class="bc-footer">
+              <span class="bc-shelf" *ngIf="b.shelfLocation">
+                <mat-icon>location_on</mat-icon>{{ b.shelfLocation }}
+              </span>
+              <button mat-icon-button color="warn" (click)="deleteBook(b)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="!isLoading() && filteredBooks.length === 0">
+          <mat-icon>menu_book</mat-icon>
+          <h3>No books found</h3>
+        </div>
+
+      </div>
+    </mat-tab>
+
+    <!-- ── Tab 2: Issue Book ──────────────────────────────────────── -->
+    <mat-tab label="Issue Book">
+      <div class="tab-content">
+        <div class="card max-600">
+          <h3 class="card-title">Issue Book to Student</h3>
+          <div class="issue-form" [formGroup]="issueForm">
+
+            <mat-form-field appearance="outline" class="full-w">
+              <mat-label>Book</mat-label>
+              <mat-select formControlName="bookId">
+                <mat-option
+                  *ngFor="let b of books"
+                  [value]="b.id"
+                  [disabled]="!b.isAvailable">
+                  {{ b.title }} — {{ b.availableCopies }} available
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-w">
+              <mat-label>Class (to load students)</mat-label>
+              <mat-select (selectionChange)="loadStudentsForClass($event.value)">
+                <mat-option *ngFor="let c of classes" [value]="c.id">
+                  {{ c.name }} {{ c.section }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-w">
+              <mat-label>Student</mat-label>
+              <mat-select formControlName="studentId">
+                <mat-option *ngFor="let s of students" [value]="s.id">
+                  {{ s.fullName }} ({{ s.rollNumber }})
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-w">
+              <mat-label>Due Date</mat-label>
+              <input matInput type="datetime-local" formControlName="dueDate"/>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-w">
+              <mat-label>Remarks (optional)</mat-label>
+              <input matInput formControlName="remarks"/>
+            </mat-form-field>
+
+          </div>
+          <button mat-raised-button color="primary" class="full-btn"
+            [disabled]="isIssuing() || issueForm.invalid"
+            (click)="issueBook()">
+            <mat-spinner *ngIf="isIssuing()" diameter="18"></mat-spinner>
+            <mat-icon *ngIf="!isIssuing()">library_books</mat-icon>
+            {{ isIssuing() ? 'Issuing...' : 'Issue Book' }}
+          </button>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- ── Tab 3: Active Issues ───────────────────────────────────── -->
+    <mat-tab label="Active Issues">
+      <div class="tab-content">
+        <div class="empty-state" *ngIf="activeIssues.length === 0">
+          <mat-icon>check_circle</mat-icon>
+          <h3>No active issues</h3>
+        </div>
+        <div class="issues-table" *ngIf="activeIssues.length > 0">
+          <div class="it-header">
+            <span>Book</span>
+            <span>Student</span>
+            <span>Issued</span>
+            <span>Due Date</span>
+            <span>Days Left</span>
+            <span>Action</span>
+          </div>
+          <div class="it-row" *ngFor="let issue of activeIssues"
+            [class.near-due]="getIssueDays(issue.dueDate) <= 3">
+            <span>
+              <strong>{{ issue.bookTitle }}</strong>
+              <small>{{ issue.isbn }}</small>
+            </span>
+            <span>
+              <strong>{{ issue.studentName }}</strong>
+              <small>{{ issue.rollNumber }}</small>
+            </span>
+            <span>{{ issue.issuedAt | date:'mediumDate' }}</span>
+            <span>{{ issue.dueDate | date:'mediumDate' }}</span>
+            <span>
+              <span class="days-badge" [class.overdue]="getIssueDays(issue.dueDate) < 0">
+                {{ getIssueDays(issue.dueDate) < 0
+                  ? (getIssueDays(issue.dueDate) * -1) + ' days overdue'
+                  : getIssueDays(issue.dueDate) + ' days left' }}
+              </span>
+            </span>
+            <span>
+              <button mat-raised-button color="primary"
+                (click)="returnBook(issue)">
+                Return
+              </button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- ── Tab 4: Overdue ────────────────────────────────────────── -->
+    <mat-tab label="Overdue">
+      <div class="tab-content">
+        <div class="empty-state" *ngIf="overdueIssues.length === 0">
+          <mat-icon>schedule</mat-icon>
+          <h3>No overdue books</h3>
+        </div>
+        <div class="issues-table" *ngIf="overdueIssues.length > 0">
+          <div class="it-header">
+            <span>Book</span>
+            <span>Student</span>
+            <span>Due Date</span>
+            <span>Days Overdue</span>
+            <span>Est. Fine</span>
+            <span>Action</span>
+          </div>
+          <div class="it-row overdue-row" *ngFor="let issue of overdueIssues">
+            <span><strong>{{ issue.bookTitle }}</strong></span>
+            <span>{{ issue.studentName }} ({{ issue.rollNumber }})</span>
+            <span>{{ issue.dueDate | date:'mediumDate' }}</span>
+            <span class="days-badge overdue">
+              {{ (getIssueDays(issue.dueDate) * -1) }} days
+            </span>
+            <span class="fine-amt">
+              ₹{{ (getIssueDays(issue.dueDate) * -1) * 2 }}
+            </span>
+            <span>
+              <button mat-raised-button color="warn" (click)="returnBook(issue)">
+                Return + Fine
+              </button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+
+</div>

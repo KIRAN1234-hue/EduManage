@@ -1,0 +1,76 @@
+<div class="leave-approvals-page">
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Leave Approvals</h2>
+      <p class="page-sub">Pending leave applications from students</p>
+    </div>
+    <span class="pending-count" *ngIf="leaves().length > 0">
+      {{ leaves().length }} Pending
+    </span>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading() && leaves().length === 0">
+    <mat-icon>check_circle</mat-icon>
+    <h3>All clear!</h3>
+    <p>No pending leave applications.</p>
+  </div>
+
+  <div class="leaves-list" *ngIf="!isLoading()">
+    <div class="leave-card" *ngFor="let leave of leaves()">
+
+      <div class="lc-header">
+        <div class="student-info">
+          <div class="s-avatar">{{ leave.studentName.charAt(0) }}</div>
+          <div>
+            <strong>{{ leave.studentName }}</strong>
+            <span class="roll">{{ leave.rollNumber }}</span>
+          </div>
+        </div>
+        <span class="leave-type-badge">{{ leave.leaveType }}</span>
+      </div>
+
+      <div class="lc-dates">
+        <mat-icon>date_range</mat-icon>
+        <span>{{ leave.fromDate | date:'mediumDate' }}</span>
+        <span>→</span>
+        <span>{{ leave.toDate | date:'mediumDate' }}</span>
+        <span class="days-badge">{{ leave.totalDays }} day{{ leave.totalDays > 1 ? 's' : '' }}</span>
+      </div>
+
+      <div class="lc-reason">
+        <span class="reason-label">Reason:</span>
+        <span>{{ leave.reason }}</span>
+      </div>
+
+      <div class="remark-input" [formGroup]="remarkForms[leave.id]">
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Approval Remark (optional)</mat-label>
+          <input matInput formControlName="approvalRemark"
+            placeholder="Add a remark for the student..."/>
+        </mat-form-field>
+      </div>
+
+      <div class="lc-actions">
+        <button mat-stroked-button color="warn"
+          [disabled]="processingId() === leave.id"
+          (click)="processLeave(leave, false)">
+          <mat-icon>cancel</mat-icon>
+          Reject
+        </button>
+        <button mat-raised-button color="primary"
+          [disabled]="processingId() === leave.id"
+          (click)="processLeave(leave, true)">
+          <mat-icon>check_circle</mat-icon>
+          Approve
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

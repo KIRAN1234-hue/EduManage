@@ -1,0 +1,31 @@
+<div class="layout-wrapper" [class.sidebar-collapsed]="!sidebarOpen()">
+
+  <!-- Sidebar -->
+  <app-sidebar
+    [isOpen]="sidebarOpen()"
+    (toggleSidebar)="toggleSidebar()">
+  </app-sidebar>
+
+  <!-- Main area -->
+  <div class="main-area">
+
+    <!-- Header -->
+    <app-header
+      (toggleSidebar)="toggleSidebar()">
+    </app-header>
+
+    <!-- Page content -->
+    <main class="page-content">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+
+  <!-- Mobile overlay -->
+  <div
+    class="sidebar-overlay"
+    *ngIf="sidebarOpen()"
+    (click)="toggleSidebar()">
+  </div>
+
+</div>

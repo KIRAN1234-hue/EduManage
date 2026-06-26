@@ -1,0 +1,109 @@
+.teacher-dash {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1000px;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 80px;
+}
+
+.welcome-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, #1E3A8A, #2563EB 60%, #7C3AED);
+  border-radius: 16px;
+  padding: 24px;
+  color: white;
+
+  h2 { font-size:1.2rem; font-weight:700; margin:0 0 4px; }
+  p  { font-size:0.875rem; opacity:0.75; margin:0; }
+}
+
+.welcome-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; font-weight: 800; color: white;
+  border: 2px solid rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+
+  @media (max-width: 768px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.stat-card {
+  background: white;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  border: 1px solid #F1F5F9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+
+  &:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+}
+
+.stat-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+
+  mat-icon { font-size:22px; width:22px; height:22px; }
+}
+
+.stat-val { font-size:1.6rem; font-weight:800; color:#0F172A; line-height:1; }
+.stat-lbl { font-size:0.75rem; color:#64748B; }
+
+.quick-section {
+  background: white;
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  border: 1px solid #F1F5F9;
+
+  h3 { font-size:0.95rem; font-weight:700; color:#0F172A; margin:0 0 14px; }
+}
+
+.qa-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+
+  @media (max-width: 768px) { grid-template-columns: repeat(3, 1fr); }
+}
+
+.qa-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  background: #FAFAFA;
+  cursor: pointer;
+  font-size: 0.72rem;
+  color: #374151;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+
+  &:hover { border-color:#2563EB; background:#EFF6FF; color:#2563EB; mat-icon { color:#2563EB; } }
+
+  mat-icon { font-size:22px; width:22px; height:22px; color:#64748B; transition:color 0.2s; }
+}

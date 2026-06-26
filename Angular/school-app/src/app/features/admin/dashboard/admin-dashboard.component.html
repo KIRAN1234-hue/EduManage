@@ -1,0 +1,119 @@
+<div class="dashboard">
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div
+      class="kpi-card"
+      *ngFor="let card of kpiCards"
+      (click)="navigateTo(card.route)">
+      <div class="kpi-top">
+        <div class="kpi-icon" [style.background]="card.lightColor">
+          <mat-icon [style.color]="card.color">{{ card.icon }}</mat-icon>
+        </div>
+        <div class="kpi-trend" [class.positive]="card.trend >= 0">
+          <mat-icon>{{ card.trend >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+          {{ card.trendLabel }}
+        </div>
+      </div>
+      <div class="kpi-value" [style.color]="card.color">
+        {{ isLoading ? '—' : card.value }}
+      </div>
+      <div class="kpi-title">{{ card.title }}</div>
+      <div class="kpi-sub">{{ card.subtitle }}</div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="charts-row">
+
+    <!-- Attendance Doughnut -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <h3>Today's Attendance</h3>
+        <span class="chart-badge" *ngIf="stats">{{ stats.attendanceTodayPercent }}%</span>
+      </div>
+      <div class="chart-body">
+        <canvas #attendanceChart></canvas>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="activity-card">
+      <h3>Recent Activity</h3>
+      <div class="activity-list">
+        <div class="activity-item" *ngFor="let act of recentActivities">
+          <div class="act-icon" [style.background]="act.color + '20'" [style.color]="act.color">
+            <mat-icon>{{ act.icon }}</mat-icon>
+          </div>
+          <div class="act-info">
+            <p class="act-msg">{{ act.action }}</p>
+            <span class="act-time">{{ act.time }}</span>
+          </div>
+        </div>
+        <!-- Fallback items if no real activities yet -->
+        <ng-container *ngIf="recentActivities.length === 0">
+          <div class="activity-item" *ngFor="let act of [
+            {action:'No recent activity recorded',icon:'info',color:'#64748B',time:''}
+          ]">
+            <div class="act-icon" [style.background]="'#F1F5F9'" [style.color]="'#94A3B8'">
+              <mat-icon>{{ act.icon }}</mat-icon>
+            </div>
+            <div class="act-info">
+              <p class="act-msg">{{ act.action }}</p>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div class="charts-row-2">
+
+    <!-- Fee Chart -->
+    <div class="chart-card-wide">
+      <div class="chart-header">
+        <div>
+          <h3>Fee Collection</h3>
+          <p class="chart-sub">Monthly collected vs pending (₹)</p>
+        </div>
+        <span class="fee-badge">₹8.4L Collected</span>
+      </div>
+      <div class="chart-body-tall">
+        <canvas #feeChart></canvas>
+      </div>
+    </div>
+
+    <!-- Marks Chart -->
+    <div class="chart-card-wide">
+      <div class="chart-header">
+        <div>
+          <h3>Class Performance</h3>
+          <p class="chart-sub">Average marks % across exams</p>
+        </div>
+      </div>
+      <div class="chart-body-tall">
+        <canvas #marksChart></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-card">
+    <h3>Quick Actions</h3>
+    <div class="qa-grid">
+      <div
+        class="qa-item"
+        *ngFor="let qa of quickActions"
+        (click)="navigateTo(qa.route)">
+        <div class="qa-icon" [style.background]="qa.color + '15'">
+          <mat-icon [style.color]="qa.color">{{ qa.icon }}</mat-icon>
+        </div>
+        <span class="qa-label">{{ qa.label }}</span>
+      </div>
+    </div>
+  </div>
+
+</div>

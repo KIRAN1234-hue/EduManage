@@ -1,0 +1,169 @@
+<div class="assignments-page">
+
+  <!-- List View -->
+  <ng-container *ngIf="!selectedAssignment()">
+    <div class="page-header">
+      <h2 class="page-title">My Assignments</h2>
+      <p class="page-sub">View and submit your assignments</p>
+    </div>
+
+    <div class="loading-state" *ngIf="isLoading()">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoading() && assignments.length === 0">
+      <mat-icon>assignment</mat-icon>
+      <h3>No assignments yet</h3>
+      <p>Your teacher hasn't assigned anything yet.</p>
+    </div>
+
+    <div class="assignment-grid" *ngIf="!isLoading()">
+      <div
+        class="assignment-card"
+        *ngFor="let a of assignments"
+        [class.overdue]="a.isOverdue"
+        (click)="viewAssignment(a)">
+
+        <div class="ac-top">
+          <span class="subject-chip">{{ a.subjectName }}</span>
+          <span class="overdue-chip" *ngIf="a.isOverdue">Overdue</span>
+        </div>
+
+        <h3 class="ac-title">{{ a.title }}</h3>
+        <p class="ac-desc">{{ a.description }}</p>
+
+        <div class="ac-bottom">
+          <span class="due-date">
+            <mat-icon>event</mat-icon>
+            Due: {{ a.dueDate | date:'mediumDate' }}
+          </span>
+          <span class="marks-chip">{{ a.totalMarks }} marks</span>
+        </div>
+
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Detail View -->
+  <ng-container *ngIf="selectedAssignment() as assignment">
+
+    <div class="page-header">
+      <div class="back-row">
+        <button mat-icon-button (click)="backToList()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div>
+          <h2 class="page-title">{{ assignment.title }}</h2>
+          <p class="page-sub">{{ assignment.subjectName }} · {{ assignment.className }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assignment Details -->
+    <div class="detail-card">
+      <div class="detail-row">
+        <div class="detail-meta">
+          <div class="meta-box">
+            <mat-icon>event</mat-icon>
+            <div>
+              <span class="meta-label">Due Date</span>
+              <span class="meta-value">{{ assignment.dueDate | date:'fullDate' }}</span>
+            </div>
+          </div>
+          <div class="meta-box">
+            <mat-icon>score</mat-icon>
+            <div>
+              <span class="meta-label">Total Marks</span>
+              <span class="meta-value">{{ assignment.totalMarks }}</span>
+            </div>
+          </div>
+          <div class="meta-box">
+            <mat-icon>person</mat-icon>
+            <div>
+              <span class="meta-label">Teacher</span>
+              <span class="meta-value">{{ assignment.teacherName }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="description-box">
+        <h4>Instructions</h4>
+        <p>{{ assignment.description }}</p>
+      </div>
+
+      <!-- Not submitted yet -->
+      <ng-container *ngIf="!mySubmission()">
+        <div class="not-submitted" *ngIf="!showSubmitForm()">
+          <mat-icon>pending</mat-icon>
+          <p>You haven't submitted this assignment yet.</p>
+          <button mat-raised-button color="primary"
+            [disabled]="assignment.isOverdue"
+            (click)="showSubmitForm.set(true)">
+            <mat-icon>upload</mat-icon>
+            Submit Assignment
+          </button>
+          <p class="overdue-note" *ngIf="assignment.isOverdue">
+            Deadline has passed. Contact your teacher.
+          </p>
+        </div>
+
+        <!-- Submit Form -->
+        <div class="submit-form" *ngIf="showSubmitForm()" [formGroup]="submitForm">
+          <h4>Your Answer</h4>
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Write your answer here</mat-label>
+            <textarea matInput formControlName="content" rows="6"
+              placeholder="Type your answer..."></textarea>
+          </mat-form-field>
+          <div class="submit-actions">
+            <button mat-stroked-button (click)="showSubmitForm.set(false)">Cancel</button>
+            <button mat-raised-button color="primary"
+              [disabled]="isSubmitting() || submitForm.invalid"
+              (click)="submitAssignment()">
+              <mat-spinner *ngIf="isSubmitting()" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="!isSubmitting()">send</mat-icon>
+              {{ isSubmitting() ? 'Submitting...' : 'Submit' }}
+            </button>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Already submitted -->
+      <div class="submission-result" *ngIf="mySubmission() as sub">
+        <div class="result-header">
+          <span class="status-pill"
+            [style.background]="getStatusBg(sub.status)"
+            [style.color]="getStatusColor(sub.status)">
+            {{ sub.status }}
+          </span>
+          <span class="submitted-at">
+            Submitted: {{ sub.submittedAt | date:'medium' }}
+            <span class="late-badge" *ngIf="sub.isLate">Late</span>
+          </span>
+        </div>
+
+        <div class="my-answer">
+          <h4>Your Submission</h4>
+          <p>{{ sub.content }}</p>
+        </div>
+
+        <!-- Grade result -->
+        <div class="grade-result" *ngIf="sub.status === 'Graded'">
+          <div class="grade-score">
+            <span class="score-value">{{ sub.marksAwarded }}</span>
+            <span class="score-max">/ {{ assignment.totalMarks }}</span>
+          </div>
+          <div class="teacher-feedback" *ngIf="sub.teacherRemark || sub.feedback">
+            <h4>Teacher Feedback</h4>
+            <p *ngIf="sub.teacherRemark">{{ sub.teacherRemark }}</p>
+            <p *ngIf="sub.feedback">{{ sub.feedback }}</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</div>

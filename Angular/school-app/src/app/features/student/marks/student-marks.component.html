@@ -1,0 +1,245 @@
+<div class="report-card-page">
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading your report card...</p>
+  </div>
+
+  <!-- No marks yet -->
+  <div class="empty-state" *ngIf="!isLoading() && !hasData()">
+    <mat-icon>grade</mat-icon>
+    <h3>No marks yet</h3>
+    <p>Your teacher hasn't entered marks for you yet.</p>
+  </div>
+
+  <!-- Report card -->
+  <ng-container *ngIf="!isLoading() && hasData() && reportCard">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h2 class="page-title">Report Card</h2>
+        <p class="page-sub">
+          Academic Year {{ reportCard.academicYear }} · {{ reportCard.className }}
+        </p>
+      </div>
+
+      <button mat-stroked-button color="primary">
+        <mat-icon>download</mat-icon>
+        Download PDF
+      </button>
+    </div>
+
+    <!-- Student Info Banner -->
+    <div class="student-banner">
+
+      <div class="student-avatar-lg">
+        {{ reportCard.studentName.charAt(0) }}
+      </div>
+
+      <div class="student-info">
+        <h3>{{ reportCard.studentName }}</h3>
+        <p>
+          Roll No: {{ reportCard.rollNumber }} · {{ reportCard.className }}
+        </p>
+      </div>
+
+      <div class="overall-result">
+
+        <div class="result-ring">
+          <svg viewBox="0 0 80 80">
+
+            <circle
+              cx="40"
+              cy="40"
+              r="32"
+              fill="none"
+              stroke="#E2E8F0"
+              stroke-width="8"
+            />
+
+            <circle
+              cx="40"
+              cy="40"
+              r="32"
+              fill="none"
+              [attr.stroke]="getGradeColor(reportCard.overallGrade)"
+              stroke-width="8"
+              stroke-linecap="round"
+              stroke-dasharray="201"
+              [attr.stroke-dashoffset]="201 - (201 * reportCard.overallPercentage / 100)"
+              transform="rotate(-90 40 40)"
+            />
+
+          </svg>
+
+          <div class="ring-center">
+            <span class="ring-pct">
+              {{ reportCard.overallPercentage }}%
+            </span>
+          </div>
+        </div>
+
+        <div class="result-info">
+
+          <span
+            class="result-grade"
+            [style.color]="getGradeColor(reportCard.overallGrade)"
+            [style.background]="getGradeBg(reportCard.overallGrade)"
+          >
+            Grade: {{ reportCard.overallGrade }}
+          </span>
+
+          <span
+            class="result-status"
+            [class.pass]="reportCard.overallPercentage >= 50"
+            [class.fail]="reportCard.overallPercentage < 50"
+          >
+            {{ reportCard.overallPercentage >= 50 ? 'PASS' : 'FAIL' }}
+          </span>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Marks Table -->
+    <div class="marks-table-card">
+
+      <div class="card-title-row">
+        <h3>Subject-wise Performance</h3>
+      </div>
+
+      <!-- Table header -->
+      <div class="marks-table">
+
+        <div class="marks-thead">
+
+          <span class="col-subject">Subject</span>
+
+          <span
+            class="col-exam"
+            *ngFor="let et of allExamTypes"
+          >
+            {{ examTypeLabels[et] || et }}
+          </span>
+
+          <span class="col-avg">Average</span>
+          <span class="col-grade-h">Grade</span>
+
+        </div>
+
+        <!-- Subject rows -->
+        <div
+          class="marks-row"
+          *ngFor="let subject of reportCard.subjects"
+        >
+
+          <span class="col-subject">
+            <strong>{{ subject.subjectName }}</strong>
+            <small>{{ subject.subjectCode }}</small>
+          </span>
+
+          <span
+            class="col-exam"
+            *ngFor="let et of allExamTypes"
+          >
+
+            <ng-container *ngIf="getExamMark(subject, et) as exam; else noMark">
+
+              <span class="exam-marks">
+                {{ exam.marksObtained }}/{{ exam.maxMarks }}
+              </span>
+
+              <span
+                class="exam-grade"
+                [style.color]="getGradeColor(exam.grade)"
+                [style.background]="getGradeBg(exam.grade)"
+              >
+                {{ exam.grade }}
+              </span>
+
+            </ng-container>
+
+            <ng-template #noMark>
+              <span class="no-mark">—</span>
+            </ng-template>
+
+          </span>
+
+          <span class="col-avg">
+            <span class="avg-pct">
+              {{ subject.subjectPercentage }}%
+            </span>
+          </span>
+
+          <span class="col-grade-h">
+
+            <span
+              class="subject-grade"
+              [style.color]="getGradeColor(subject.subjectGrade)"
+              [style.background]="getGradeBg(subject.subjectGrade)"
+            >
+              {{ subject.subjectGrade }}
+            </span>
+
+          </span>
+
+        </div>
+
+        <!-- Overall row -->
+        <div class="marks-row overall-row">
+
+          <span class="col-subject">
+            <strong>OVERALL</strong>
+          </span>
+
+          <span
+            class="col-exam"
+            *ngFor="let et of allExamTypes"
+          ></span>
+
+          <span class="col-avg">
+            <strong>{{ reportCard.overallPercentage }}%</strong>
+          </span>
+
+          <span class="col-grade-h">
+
+            <span
+              class="subject-grade overall-grade"
+              [style.color]="getGradeColor(reportCard.overallGrade)"
+              [style.background]="getGradeBg(reportCard.overallGrade)"
+            >
+              {{ reportCard.overallGrade }}
+            </span>
+
+          </span>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Performance Chart -->
+    <div class="chart-card">
+
+      <div class="card-title-row">
+
+        <div>
+          <h3>Performance Chart</h3>
+          <p class="card-sub">
+            Exam-wise marks percentage across subjects
+          </p>
+        </div>
+
+      </div>
+
+      <div class="chart-body">
+        <canvas #performanceChart></canvas>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</div>

@@ -1,0 +1,76 @@
+<div class="teacher-dash">
+
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <ng-container *ngIf="!isLoading()">
+
+    <!-- Welcome -->
+    <div class="welcome-card" *ngIf="user$ | async as user">
+      <div class="welcome-avatar">{{ user.fullName ? user.fullName.charAt(0) : '' }}</div>
+      <div>
+        <h2>Welcome back, {{ user.fullName }}!</h2>
+        <p>Teacher · {{ today | date:'fullDate' }}</p>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" *ngIf="stats() as data">
+      <div class="stat-card" (click)="navigateTo('/teacher/attendance')">
+        <div class="stat-icon" style="background:#DBEAFE">
+          <mat-icon style="color:#2563EB">people</mat-icon>
+        </div>
+        <span class="stat-val">{{ data.totalStudents }}</span>
+        <span class="stat-lbl">My Students</span>
+      </div>
+      <div class="stat-card" (click)="navigateTo('/teacher/attendance')">
+        <div class="stat-icon" style="background:#DCFCE7">
+          <mat-icon style="color:#16A34A">fact_check</mat-icon>
+        </div>
+        <span class="stat-val">{{ data.attendanceTodayPercent }}%</span>
+        <span class="stat-lbl">Attendance Today</span>
+      </div>
+      <div class="stat-card" (click)="navigateTo('/teacher/assignments')">
+        <div class="stat-icon" style="background:#EDE9FE">
+          <mat-icon style="color:#7C3AED">assignment</mat-icon>
+        </div>
+        <span class="stat-val">{{ data.totalAssignments }}</span>
+        <span class="stat-lbl">My Assignments</span>
+      </div>
+      <div class="stat-card" (click)="navigateTo('/teacher/leaves')">
+        <div class="stat-icon" style="background:#FEE2E2">
+          <mat-icon style="color:#DC2626">event_busy</mat-icon>
+        </div>
+        <span class="stat-val">{{ data.pendingLeaveApplications }}</span>
+        <span class="stat-lbl">Pending Leaves</span>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="quick-section">
+      <h3>Quick Actions</h3>
+      <div class="qa-row">
+        <button class="qa-btn" (click)="navigateTo('/teacher/attendance')">
+          <mat-icon>fact_check</mat-icon><span>Mark Attendance</span>
+        </button>
+        <button class="qa-btn" (click)="navigateTo('/teacher/marks')">
+          <mat-icon>grade</mat-icon><span>Enter Marks</span>
+        </button>
+        <button class="qa-btn" (click)="navigateTo('/teacher/assignments')">
+          <mat-icon>assignment</mat-icon><span>Assignments</span>
+        </button>
+        <button class="qa-btn" (click)="navigateTo('/teacher/notices')">
+          <mat-icon>campaign</mat-icon><span>Notices</span>
+        </button>
+        <button class="qa-btn" (click)="navigateTo('/teacher/timetable')">
+          <mat-icon>calendar_today</mat-icon><span>My Timetable</span>
+        </button>
+        <button class="qa-btn" (click)="navigateTo('/teacher/leaves')">
+          <mat-icon>event_available</mat-icon><span>Leave Approvals</span>
+        </button>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

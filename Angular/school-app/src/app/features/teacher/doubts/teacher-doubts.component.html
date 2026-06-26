@@ -1,0 +1,141 @@
+<div class="doubt-page">
+
+  <!-- Left Panel -->
+  <div class="left-panel">
+    <div class="lp-header">
+      <h2>Doubt Inbox</h2>
+      <span class="unread-total" *ngIf="totalUnread > 0">
+        {{ totalUnread }}
+      </span>
+    </div>
+
+    <div class="search-bar">
+      <mat-icon>search</mat-icon>
+      <input [(ngModel)]="searchTerm" placeholder="Search students..."/>
+    </div>
+
+    <div class="filter-tabs">
+      <button [class.active]="activeFilter === 'all'"
+        (click)="activeFilter = 'all'">All</button>
+      <button [class.active]="activeFilter === 'unread'"
+        (click)="activeFilter = 'unread'">Unread</button>
+    </div>
+
+    <div class="conv-list">
+      <div class="loading-convs" *ngIf="isLoadingConvs()">
+        <mat-spinner diameter="28"></mat-spinner>
+      </div>
+
+      <div class="empty-convs"
+        *ngIf="!isLoadingConvs() && filteredConversations.length === 0">
+        <mat-icon>inbox</mat-icon>
+        <p>No student doubts yet</p>
+      </div>
+
+      <div
+        class="conv-item"
+        *ngFor="let conv of filteredConversations"
+        [class.active]="selectedConv()?.otherUserId === conv.otherUserId"
+        (click)="openConversation(conv)">
+
+        <div class="ci-avatar"
+          [style.background]="getAvatarColor(conv.otherUserName)">
+          {{ getInitials(conv.otherUserName) }}
+        </div>
+
+        <div class="ci-info">
+          <div class="ci-top">
+            <span class="ci-name">{{ conv.otherUserName }}</span>
+            <span class="ci-time">{{ formatTime(conv.lastMessageAt) }}</span>
+          </div>
+          <div class="ci-bottom">
+            <span class="ci-preview">{{ conv.lastMessage }}</span>
+            <span class="ci-badge" *ngIf="conv.unreadCount > 0">
+              {{ conv.unreadCount }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+
+    <ng-container *ngIf="selectedConv()">
+      <ng-container *ngIf="selectedConv() as conv">
+
+        <div class="chat-header">
+          <div class="ch-avatar"
+            [style.background]="getAvatarColor(conv.otherUserName)">
+            {{ getInitials(conv.otherUserName) }}
+          </div>
+          <div class="ch-info">
+            <span class="ch-name">{{ conv.otherUserName }}</span>
+            <span class="ch-status">Student</span>
+          </div>
+        </div>
+
+        <div class="chat-body" #chatBody>
+          <div class="loading-msgs" *ngIf="isLoadingMessages()">
+            <mat-spinner diameter="30"></mat-spinner>
+          </div>
+
+          <div class="empty-msgs"
+            *ngIf="!isLoadingMessages() && activeMessages.length === 0">
+            <mat-icon>forum</mat-icon>
+            <p>No messages yet</p>
+          </div>
+
+          <div
+            *ngFor="let msg of activeMessages"
+            class="msg-row"
+            [class.sent]="isMyMessage(msg)"
+            [class.received]="!isMyMessage(msg)">
+
+            <div class="msg-avatar"
+              *ngIf="!isMyMessage(msg)"
+              [style.background]="getAvatarColor(msg.senderName)">
+              {{ getInitials(msg.senderName) }}
+            </div>
+
+            <div class="msg-bubble"
+              [class.bubble-sent]="isMyMessage(msg)"
+              [class.bubble-received]="!isMyMessage(msg)">
+              <p class="msg-text">{{ msg.content }}</p>
+              <div class="msg-meta">
+                <span class="msg-time">{{ formatMessageTime(msg.sentAt) }}</span>
+                <mat-icon class="read-tick" *ngIf="isMyMessage(msg)">done_all</mat-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-bar">
+          <div class="input-wrap">
+            <input
+              class="msg-input"
+              [formControl]="replyControl"
+              placeholder="Reply to student..."
+              (keyup.enter)="sendReply()"/>
+          </div>
+          <button class="send-btn"
+            [disabled]="isSending() || replyControl.invalid"
+            (click)="sendReply()">
+            <mat-spinner *ngIf="isSending()" diameter="18"></mat-spinner>
+            <mat-icon *ngIf="!isSending()">send</mat-icon>
+          </button>
+        </div>
+
+      </ng-container>
+    </ng-container>
+
+    <div class="rp-empty" *ngIf="!selectedConv()">
+      <div class="rpe-icon">
+        <mat-icon>question_answer</mat-icon>
+      </div>
+      <h3>Select a Doubt</h3>
+      <p>Student doubts will appear here. Select one to reply.</p>
+    </div>
+  </div>
+</div>

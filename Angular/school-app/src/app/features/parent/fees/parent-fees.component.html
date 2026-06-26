@@ -1,0 +1,212 @@
+<div class="parent-fees-page">
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Fee Payment</h2>
+      <p class="page-sub">View and pay your child's school fees</p>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading fee details...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading() && feeStatus() as status">
+
+    <!-- Child Info + Summary -->
+    <div class="child-summary">
+      <div class="child-info">
+        <div class="child-avatar">{{ status.studentName.charAt(0) }}</div>
+        <div>
+          <h3>{{ status.studentName }}</h3>
+          <p>{{ status.rollNumber }} · {{ status.className }}</p>
+        </div>
+      </div>
+      <div class="fee-totals">
+        <div class="total-item">
+          <span class="ti-label">Total Fee</span>
+          <span class="ti-val">₹{{ status.totalDue | number }}</span>
+        </div>
+        <div class="divider"></div>
+        <div class="total-item">
+          <span class="ti-label">Paid</span>
+          <span class="ti-val green">₹{{ status.totalPaid | number }}</span>
+        </div>
+        <div class="divider"></div>
+        <div class="total-item">
+          <span class="ti-label">Balance Due</span>
+          <span class="ti-val" [class.red]="status.balance > 0">
+            ₹{{ status.balance | number }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overall Progress Bar -->
+    <div class="progress-card">
+      <div class="progress-header">
+        <span>Payment Progress</span>
+        <span class="pct-val">
+          {{ status.totalDue > 0 ? (status.totalPaid / status.totalDue * 100 | number:'1.0-0') : 0 }}% Complete
+        </span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill"
+          [style.width]="getProgressWidth(status.totalPaid, status.totalDue)">
+        </div>
+      </div>
+    </div>
+
+    <!-- Term Cards -->
+    <div class="terms-section">
+      <h3 class="section-title">Term-wise Fee Details</h3>
+      <div class="terms-grid">
+
+        <div
+          class="term-card"
+          *ngFor="let term of status.terms"
+          [class.paid]="term.status === 'Paid'"
+          [class.overdue]="term.status === 'Overdue'">
+
+          <div class="tc-header">
+            <div class="tc-term">
+              <mat-icon>receipt</mat-icon>
+              {{ term.termName }}
+            </div>
+            <span class="status-pill"
+              [style.background]="getStatusBg(term.status)"
+              [style.color]="getStatusColor(term.status)">
+              {{ term.status }}
+            </span>
+          </div>
+
+          <div class="tc-amount">
+            <span class="ta-due">₹{{ term.amount | number }}</span>
+            <span class="ta-label">Total fee</span>
+          </div>
+
+          <div class="tc-breakdown">
+            <div class="tcd-item">
+              <span>Paid</span>
+              <span class="green">₹{{ term.paid | number }}</span>
+            </div>
+            <div class="tcd-item">
+              <span>Balance</span>
+              <span [class.red]="term.amount - term.paid > 0">
+                ₹{{ term.amount - term.paid | number }}
+              </span>
+            </div>
+            <div class="tcd-item">
+              <span>Due Date</span>
+              <span>{{ term.dueDate | date:'mediumDate' }}</span>
+            </div>
+          </div>
+
+          <!-- Progress -->
+          <div class="tc-bar">
+            <div class="tcb-fill"
+              [style.width]="getProgressWidth(term.paid, term.amount)"
+              [style.background]="getStatusColor(term.status)">
+            </div>
+          </div>
+
+          <div class="tc-receipt" *ngIf="term.receiptNumber">
+            <mat-icon>receipt_long</mat-icon>
+            {{ term.receiptNumber }}
+          </div>
+
+          <!-- Pay Button -->
+          <button
+            mat-raised-button
+            class="pay-btn"
+            [disabled]="!canPay(term)"
+            (click)="openPayDialog(term)">
+            <mat-icon>{{ term.status === 'Paid' ? 'check_circle' : 'payment' }}</mat-icon>
+            {{ term.status === 'Paid' ? 'Paid' : 'Pay Now' }}
+          </button>
+
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
+
+  <div class="empty-state" *ngIf="!isLoading() && !feeStatus()">
+    <mat-icon>payments</mat-icon>
+    <h3>No fee records found</h3>
+    <p>Contact the school office for details.</p>
+  </div>
+
+  <!-- ── Payment Dialog Overlay ───────────────────────────────────── -->
+  <div class="dialog-overlay" *ngIf="showPayDialog()">
+    <div class="dialog-box">
+
+      <div class="dialog-header">
+        <h3>Pay — {{ selectedTerm()?.termName }}</h3>
+        <button mat-icon-button (click)="showPayDialog.set(false)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="dialog-info">
+        <div class="di-row">
+          <span>Total Fee</span>
+          <span>₹{{ selectedTerm()?.amount | number }}</span>
+        </div>
+        <div class="di-row">
+          <span>Already Paid</span>
+          <span class="green">₹{{ selectedTerm()?.paid | number }}</span>
+        </div>
+        <div class="di-row bold">
+          <span>Balance Due</span>
+          <span class="red">
+            ₹{{ ((selectedTerm()?.amount ?? 0) - (selectedTerm()?.paid ?? 0)) | number }}
+          </span>
+        </div>
+      </div>
+
+      <div [formGroup]="paymentForm" class="dialog-form">
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Amount to Pay (₹)</mat-label>
+          <input matInput type="number" formControlName="amount"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Payment Method</mat-label>
+          <mat-select formControlName="paymentMethod">
+            <mat-option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Remarks (optional)</mat-label>
+          <input matInput formControlName="remarks"/>
+        </mat-form-field>
+
+      </div>
+
+      <div class="dialog-note">
+        <mat-icon>info</mat-icon>
+        <p>Payment will be recorded immediately and reflected in school records.</p>
+      </div>
+
+      <div class="dialog-actions">
+        <button mat-stroked-button (click)="showPayDialog.set(false)">
+          Cancel
+        </button>
+        <button mat-raised-button color="primary"
+          [disabled]="isPaying() || paymentForm.invalid"
+          (click)="submitPayment()">
+          <mat-spinner *ngIf="isPaying()" diameter="18"></mat-spinner>
+          <mat-icon *ngIf="!isPaying()">payment</mat-icon>
+          {{ isPaying() ? 'Processing...' : 'Confirm Payment' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

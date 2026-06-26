@@ -1,0 +1,71 @@
+<div class="parent-attendance">
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">{{ childName }}'s Attendance</h2>
+      <p class="page-sub">{{ childClass }} · Academic Year 2024-25</p>
+    </div>
+    <div class="overall-badge"
+         [class.good]="overallPercentage >= 75"
+         [class.bad]="overallPercentage < 75">
+      <mat-icon>{{ overallPercentage >= 75 ? 'check_circle' : 'warning' }}</mat-icon>
+      <div>
+        <span class="badge-value">{{ overallPercentage }}%</span>
+        <span class="badge-label">Overall</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert if below threshold -->
+  <div class="alert-banner" *ngIf="overallPercentage < 75">
+    <mat-icon>warning</mat-icon>
+    <div>
+      <strong>Action Required</strong>
+      Your child's attendance has dropped below 75%.
+      Please ensure regular attendance to avoid issues.
+    </div>
+  </div>
+
+  <!-- Subject Table -->
+  <div class="subject-table-card">
+    <div class="table-head">
+      <span>Subject</span>
+      <span>Total Classes</span>
+      <span>Present</span>
+      <span>Absent</span>
+      <span>Late</span>
+      <span>Percentage</span>
+      <span>Status</span>
+    </div>
+
+    <div
+      class="table-row"
+      *ngFor="let s of subjectPercentages">
+      <span class="subject-col">{{ s.subjectName }}</span>
+      <span class="center">{{ s.totalClasses }}</span>
+      <span class="center green-text">{{ s.presentCount }}</span>
+      <span class="center red-text">{{ s.absentCount }}</span>
+      <span class="center amber-text">{{ s.lateCount }}</span>
+      <span class="center">
+        <div class="pct-bar-wrap">
+          <div class="pct-bar-fill"
+               [style.width.%]="s.percentage"
+               [style.background]="getRiskConfig(s.riskLevel).color">
+          </div>
+          <span class="pct-text"
+                [style.color]="getRiskConfig(s.riskLevel).color">
+            {{ s.percentage }}%
+          </span>
+        </div>
+      </span>
+      <span class="center">
+        <span class="risk-pill"
+              [style.background]="getRiskConfig(s.riskLevel).bg"
+              [style.color]="getRiskConfig(s.riskLevel).color">
+          {{ s.riskLevel }}
+        </span>
+      </span>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,52 @@
+@use '@angular/material' as mat;
+
+// ── Global Reset ──────────────────────────────────────────────
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+  background: #F8FAFC;
+  color: #0F172A;
+  -webkit-font-smoothing: antialiased;
+}
+
+// ── Scrollbar ─────────────────────────────────────────────────
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: #F1F5F9; }
+::-webkit-scrollbar-thumb  { background: #CBD5E1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+// ── Angular Material overrides ────────────────────────────────
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-raised-button {
+  border-radius: 10px !important;
+}
+
+// Error snackbar
+.error-snackbar .mdc-snackbar__surface {
+  background: #DC2626 !important;
+}
+
+.error-snackbar .mdc-snackbar__label {
+  color: white !important;
+}
+
+// Success snackbar
+.success-snackbar .mdc-snackbar__surface {
+  background: #16A34A !important;
+}
+
+.success-snackbar .mdc-snackbar__label {
+  color: white !important;
+}

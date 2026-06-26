@@ -1,0 +1,197 @@
+<div class="marks-page">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Marks Entry</h2>
+      <p class="page-sub">Select filters below — grade calculates automatically as you type</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-card" [formGroup]="filterForm">
+    <div class="filter-grid">
+      <mat-form-field appearance="outline">
+      <mat-label>Class</mat-label>
+      <mat-icon matPrefix>class</mat-icon>
+      <mat-select formControlName="classId"
+        (selectionChange)="onClassChange()">
+        <mat-option *ngFor="let c of classes" [value]="c.id">
+          {{ c.name }} {{ c.section }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+      <mat-form-field appearance="outline">
+      <mat-label>Subject</mat-label>
+      <mat-icon matPrefix>menu_book</mat-icon>
+      <mat-select formControlName="subjectId"
+        (selectionChange)="loadStudents()">
+        <mat-option *ngIf="subjects.length === 0" disabled>
+          Select a class first
+        </mat-option>
+        <mat-option *ngFor="let s of subjects" [value]="s.id">
+          {{ s.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+      <mat-form-field appearance="outline">
+      <mat-label>Exam Type</mat-label>
+      <mat-icon matPrefix>event_note</mat-icon>
+      <mat-select formControlName="examType"
+        (selectionChange)="loadStudents()">
+        <mat-option *ngFor="let e of examTypes" [value]="e.value">
+          {{ e.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+      <mat-form-field appearance="outline">
+      <mat-label>Max Marks</mat-label>
+      <mat-icon matPrefix>score</mat-icon>
+      <input matInput type="number" formControlName="maxMarks" min="1"/>
+    </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="state-box" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading students...</p>
+  </div>
+
+  <!-- Empty prompt -->
+  <div class="state-box" *ngIf="!isLoading() && !studentsLoaded()">
+    <mat-icon class="state-icon">grade</mat-icon>
+    <h3>Select All 3 Filters</h3>
+    <p>Class, Subject and Exam Type are required to load students.</p>
+  </div>
+
+  <!-- Marks Card -->
+  <div class="marks-card" *ngIf="studentsLoaded() && !isLoading()">
+
+    <!-- Summary bar -->
+    <div class="summary-bar">
+      <div class="summary-item">
+        <span class="s-val">{{ students.length }}</span>
+        <span class="s-lbl">Total Students</span>
+      </div>
+      <div class="s-sep"></div>
+      <div class="summary-item">
+        <span class="s-val blue">{{ getEnteredCount() }}</span>
+        <span class="s-lbl">Marks Entered</span>
+      </div>
+      <div class="s-sep"></div>
+      <div class="summary-item">
+        <span class="s-val green">{{ getClassAverage() }}%</span>
+        <span class="s-lbl">Class Average</span>
+      </div>
+      <div class="s-sep"></div>
+      <div class="summary-item">
+        <span class="s-val purple">{{ maxMarks }}</span>
+        <span class="s-lbl">Max Marks</span>
+      </div>
+    </div>
+
+    <!-- Grade legend -->
+    <div class="legend-bar">
+      <span class="legend-label">Grade Scale:</span>
+      <span class="leg-item aplus">A+: 90-100</span>
+      <span class="leg-item a">A: 80-89</span>
+      <span class="leg-item b">B: 70-79</span>
+      <span class="leg-item c">C: 60-69</span>
+      <span class="leg-item d">D: 50-59</span>
+      <span class="leg-item f">F: Below 50</span>
+    </div>
+
+    <!-- Table -->
+    <div class="marks-table">
+
+      <!-- Header -->
+      <div class="trow thead">
+        <div class="tcell tc-roll">Roll No</div>
+        <div class="tcell tc-name">Student Name</div>
+        <div class="tcell tc-marks">Marks (out of {{ maxMarks }})</div>
+        <div class="tcell tc-pct">Percentage</div>
+        <div class="tcell tc-grade">Grade</div>
+      </div>
+
+      <!-- Student rows -->
+      <div
+        class="trow"
+        *ngFor="let student of students"
+        [class.row-fail]="student.grade === 'F' && student.marksObtained !== null">
+
+        <!-- Roll -->
+        <div class="tcell tc-roll">
+          <span class="roll-tag">{{ student.rollNumber }}</span>
+        </div>
+
+        <!-- Name -->
+        <div class="tcell tc-name">
+          <div class="stu-avatar">{{ student.studentName.charAt(0) }}</div>
+          <span class="stu-name">{{ student.studentName }}</span>
+        </div>
+
+        <!-- Marks input -->
+        <div class="tcell tc-marks">
+          <div class="input-wrap">
+            <input
+              class="marks-inp"
+              type="number"
+              [min]="0"
+              [max]="maxMarks"
+              [(ngModel)]="student.marksObtained"
+              (input)="onMarksInput(student)"
+              placeholder="Enter marks"
+            />
+            <span class="max-txt">/ {{ maxMarks }}</span>
+          </div>
+        </div>
+
+        <!-- Percentage -->
+        <div class="tcell tc-pct">
+          <span class="pct-val" *ngIf="student.marksObtained !== null">
+            {{ student.percentage }}%
+          </span>
+          <span class="dash" *ngIf="student.marksObtained === null">—</span>
+        </div>
+
+        <!-- Grade -->
+        <div class="tcell tc-grade">
+          <span
+            class="grade-tag"
+            *ngIf="student.grade"
+            [style.background]="getGradeBg(student.grade)"
+            [style.color]="getGradeColor(student.grade)">
+            {{ student.grade }}
+          </span>
+          <span class="dash" *ngIf="!student.grade">—</span>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="marks-footer">
+      <span class="footer-note">
+        <mat-icon>info</mat-icon>
+        {{ getEnteredCount() }} of {{ students.length }} marks entered
+      </span>
+      <button
+        mat-raised-button
+        color="primary"
+        class="save-btn"
+        [disabled]="isSubmitting() || getEnteredCount() === 0"
+        (click)="submitMarks()">
+        <mat-spinner *ngIf="isSubmitting()" diameter="18" class="btn-spin"></mat-spinner>
+        <mat-icon *ngIf="!isSubmitting()">save</mat-icon>
+        {{ isSubmitting() ? 'Saving...' : 'Submit Marks' }}
+      </button>
+    </div>
+
+  </div>
+
+</div>

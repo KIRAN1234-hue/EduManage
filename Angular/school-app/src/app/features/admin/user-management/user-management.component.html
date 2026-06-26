@@ -1,0 +1,505 @@
+<div class="um-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">User Management</h2>
+      <p class="page-sub">Create and manage classes, subjects, teachers and students</p>
+    </div>
+  </div>
+
+  <!-- Invite Token Alert -->
+  <div class="invite-alert" *ngIf="lastInviteToken()">
+    <div class="invite-header">
+      <mat-icon class="invite-icon">vpn_key</mat-icon>
+      <div>
+        <strong>{{ lastCreatedRole() }} Account Created!</strong>
+        <p>Share these details with the {{ lastCreatedRole().toLowerCase() }} so they can complete registration.</p>
+      </div>
+      <button mat-icon-button (click)="clearInviteToken()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="invite-details">
+      <div class="invite-field">
+        <span class="if-label">Email</span>
+        <span class="if-value">{{ lastInviteEmail() }}</span>
+        <button mat-icon-button (click)="copyToClipboard(lastInviteEmail()!)">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <div class="invite-field" *ngIf="lastCreatedRole() === 'Teacher'">
+        <span class="if-label">Invite Token</span>
+        <span class="if-value token">{{ lastInviteToken() }}</span>
+        <button mat-icon-button (click)="copyToClipboard(lastInviteToken()!)">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <div class="invite-reg-url">
+        <span class="if-label">Registration URL</span>
+        <span class="if-value">
+          {{ lastCreatedRole() === 'Teacher'
+            ? 'http://localhost:4200/register/teacher'
+            : 'http://localhost:4200/register/student' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+   <!-- Confirm Delete Dialog -->
+<div class="delete-overlay" *ngIf="confirmDeleteId()">
+  <div class="delete-dialog">
+    <div class="delete-icon">
+      <mat-icon>delete_forever</mat-icon>
+    </div>
+    <h3>Confirm Delete</h3>
+    <p>Are you sure you want to delete this {{ confirmDeleteType() }}?
+       This action cannot be undone.</p>
+    <div class="delete-actions">
+      <button mat-stroked-button (click)="cancelDelete()">Cancel</button>
+      <button mat-raised-button color="warn" (click)="executeDelete()">
+        <mat-icon>delete</mat-icon>
+        Yes, Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+  <!-- Tabs -->
+  <mat-tab-group class="um-tabs" animationDuration="200ms">
+
+    <!-- ── CLASSES TAB ─────────────────────────────────────────────────── -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">class</mat-icon>
+        Classes ({{ classes.length }})
+      </ng-template>
+
+      <div class="tab-content">
+
+        <!-- Create button -->
+        <div class="tab-actions">
+          <button mat-raised-button color="primary"
+            (click)="showCreateClassForm.set(!showCreateClassForm())">
+            <mat-icon>{{ showCreateClassForm() ? 'close' : 'add' }}</mat-icon>
+            {{ showCreateClassForm() ? 'Cancel' : 'Create Class' }}
+          </button>
+        </div>
+
+        <!-- Create form -->
+        <div class="create-form-card" *ngIf="showCreateClassForm()">
+          <h3 class="form-title">Create New Class</h3>
+          <div class="form-grid" [formGroup]="classForm">
+            <mat-form-field appearance="outline">
+              <mat-label>Class Name</mat-label>
+              <input matInput formControlName="name" placeholder="e.g. 10th"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Section</mat-label>
+              <input matInput formControlName="section" placeholder="e.g. A"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Academic Year</mat-label>
+              <input matInput formControlName="academicYear" placeholder="2024-25"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Max Strength</mat-label>
+              <input matInput type="number" formControlName="maxStrength"/>
+            </mat-form-field>
+          </div>
+          <div class="form-actions">
+            <button mat-raised-button color="primary"
+              [disabled]="isSubmittingClass()"
+              (click)="createClass()">
+              <mat-spinner *ngIf="isSubmittingClass()" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="!isSubmittingClass()">save</mat-icon>
+              {{ isSubmittingClass() ? 'Creating...' : 'Create Class' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Class list -->
+        <div class="data-table">
+          <div class="dt-header">
+            <span class="dc-name">Class</span>
+            <span class="dc-year">Academic Year</span>
+            <span class="dc-strength">Max Strength</span>
+            <span class="dc-teacher">Class Teacher</span>
+            <span class="dc-students">Students</span>
+          </div>
+          <div class="loading-row" *ngIf="isLoadingClasses()">
+            <mat-spinner diameter="30"></mat-spinner>
+          </div>
+          <div class="dt-row" *ngFor="let cls of classes">
+            <span class="dc-name">
+              <div class="item-avatar blue">{{ cls.name.charAt(0) }}</div>
+              <div class="item-info">
+                <strong>{{ cls.name }} {{ cls.section }}</strong>
+              </div>
+            </span>
+            <span class="dc-year">{{ cls.academicYear }}</span>
+            <span class="dc-strength">{{ cls.maxStrength }}</span>
+            <span class="dc-teacher">
+              <span class="teacher-tag" *ngIf="cls.classTeacher">
+                {{ cls.classTeacher }}
+              </span>
+              <span class="no-data" *ngIf="!cls.classTeacher">Not assigned</span>
+            </span>
+            <span class="dc-students">
+              <span class="count-badge">{{ cls.studentCount }}</span>
+            </span>
+            <span class="dc-action">
+    <button
+      mat-icon-button
+      color="warn"
+      (click)="confirmDelete(cls.id, 'class')"
+      matTooltip="Delete class">
+
+      <mat-icon>delete</mat-icon>
+    </button>
+  </span>
+          </div>
+          <div class="empty-row" *ngIf="!isLoadingClasses() && classes.length === 0">
+            No classes created yet.
+          </div>
+        </div>
+
+      </div>
+    </mat-tab>
+
+    <!-- ── SUBJECTS TAB ────────────────────────────────────────────────── -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">menu_book</mat-icon>
+        Subjects ({{ subjects.length }})
+      </ng-template>
+
+      <div class="tab-content">
+        <div class="tab-actions">
+          <button mat-raised-button color="primary"
+            (click)="showCreateSubjectForm.set(!showCreateSubjectForm())">
+            <mat-icon>{{ showCreateSubjectForm() ? 'close' : 'add' }}</mat-icon>
+            {{ showCreateSubjectForm() ? 'Cancel' : 'Create Subject' }}
+          </button>
+        </div>
+
+        <div class="create-form-card" *ngIf="showCreateSubjectForm()">
+          <h3 class="form-title">Create New Subject</h3>
+          <div class="form-grid" [formGroup]="subjectForm">
+            <mat-form-field appearance="outline">
+              <mat-label>Subject Name</mat-label>
+              <input matInput formControlName="name" placeholder="e.g. Mathematics"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Subject Code</mat-label>
+              <input matInput formControlName="code" placeholder="e.g. MATH-10A"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Max Marks</mat-label>
+              <input matInput type="number" formControlName="maxMarks"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Assign to Class</mat-label>
+              <mat-select formControlName="classId">
+                <mat-option *ngFor="let cls of classes" [value]="cls.id">
+                  {{ cls.name }} {{ cls.section }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Assign Teacher (optional)</mat-label>
+              <mat-select formControlName="teacherId">
+                <mat-option value="">No teacher yet</mat-option>
+                <mat-option *ngFor="let t of teachers" [value]="t.id">
+                  {{ t.fullName }} ({{ t.employeeCode }})
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="form-actions">
+            <button mat-raised-button color="primary"
+              [disabled]="isSubmittingSubject()"
+              (click)="createSubject()">
+              <mat-spinner *ngIf="isSubmittingSubject()" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="!isSubmittingSubject()">save</mat-icon>
+              {{ isSubmittingSubject() ? 'Creating...' : 'Create Subject' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="data-table">
+          <div class="dt-header">
+            <span class="dc-name">Subject</span>
+            <span class="dc-year">Code</span>
+            <span class="dc-strength">Max Marks</span>
+            <span class="dc-teacher">Class</span>
+            <span class="dc-teacher">Teacher</span>
+          </div>
+          <div class="loading-row" *ngIf="isLoadingSubjects()">
+            <mat-spinner diameter="30"></mat-spinner>
+          </div>
+          <div class="dt-row" *ngFor="let sub of subjects">
+            <span class="dc-name">
+              <div class="item-avatar green">{{ sub.name.charAt(0) }}</div>
+              <div class="item-info"><strong>{{ sub.name }}</strong></div>
+            </span>
+            <span class="dc-year">
+              <span class="code-badge">{{ sub.code }}</span>
+            </span>
+            <span class="dc-strength">{{ sub.maxMarks }}</span>
+            <span class="dc-teacher">{{ sub.className }}</span>
+            <span class="dc-teacher">
+              <span *ngIf="sub.teacherName">{{ sub.teacherName }}</span>
+              <span class="no-data" *ngIf="!sub.teacherName">Not assigned</span>
+            </span>
+            <span class="dc-action">
+    <button
+      mat-icon-button
+      color="warn"
+      (click)="confirmDelete(sub.id, 'subject')"
+      matTooltip="Delete subject">
+
+      <mat-icon>delete</mat-icon>
+    </button>
+  </span>
+          </div>
+          <div class="empty-row" *ngIf="!isLoadingSubjects() && subjects.length === 0">
+            No subjects created yet.
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- ── TEACHERS TAB ────────────────────────────────────────────────── -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">person</mat-icon>
+        Teachers ({{ teachers.length }})
+      </ng-template>
+
+      <div class="tab-content">
+        <div class="tab-actions">
+          <button mat-raised-button color="primary"
+            (click)="showCreateTeacherForm.set(!showCreateTeacherForm())">
+            <mat-icon>{{ showCreateTeacherForm() ? 'close' : 'person_add' }}</mat-icon>
+            {{ showCreateTeacherForm() ? 'Cancel' : 'Add Teacher' }}
+          </button>
+        </div>
+
+        <div class="create-form-card" *ngIf="showCreateTeacherForm()">
+          <h3 class="form-title">Add New Teacher</h3>
+          <div class="invite-hint">
+            <mat-icon>info</mat-icon>
+            After creating, an invite token will be generated. Share it with the teacher so they can set their password at <strong>/register/teacher</strong>
+          </div>
+          <div class="form-grid" [formGroup]="teacherForm">
+            <mat-form-field appearance="outline">
+              <mat-label>Full Name</mat-label>
+              <input matInput formControlName="fullName"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput type="email" formControlName="email"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Qualification</mat-label>
+              <input matInput formControlName="qualification" placeholder="e.g. M.Sc Mathematics"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Employee Code</mat-label>
+              <input matInput formControlName="employeeCode" placeholder="e.g. EMP005"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Joining Date</mat-label>
+              <input matInput [matDatepicker]="tp" formControlName="joiningDate"/>
+              <mat-datepicker-toggle matSuffix [for]="tp"></mat-datepicker-toggle>
+              <mat-datepicker #tp></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Assign Class (optional)</mat-label>
+              <mat-select formControlName="classId">
+                <mat-option value="">No class yet</mat-option>
+                <mat-option *ngFor="let cls of classes" [value]="cls.id">
+                  {{ cls.name }} {{ cls.section }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="form-actions">
+            <button mat-raised-button color="primary"
+              [disabled]="isSubmittingTeacher()"
+              (click)="createTeacher()">
+              <mat-spinner *ngIf="isSubmittingTeacher()" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="!isSubmittingTeacher()">person_add</mat-icon>
+              {{ isSubmittingTeacher() ? 'Creating...' : 'Create Teacher Account' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="data-table">
+          <div class="dt-header">
+            <span class="dc-name">Teacher</span>
+            <span class="dc-year">Employee Code</span>
+            <span class="dc-strength">Qualification</span>
+            <span class="dc-teacher">Class</span>
+            <span class="dc-students">Status</span>
+          </div>
+          <div class="loading-row" *ngIf="isLoadingTeachers()">
+            <mat-spinner diameter="30"></mat-spinner>
+          </div>
+          <div class="dt-row" *ngFor="let t of teachers">
+            <span class="dc-name">
+              <div class="item-avatar purple">{{ t.fullName.charAt(0) }}</div>
+              <div class="item-info">
+                <strong>{{ t.fullName }}</strong>
+                <small>{{ t.email }}</small>
+              </div>
+            </span>
+            <span class="dc-year">
+              <span class="code-badge">{{ t.employeeCode }}</span>
+            </span>
+            <span class="dc-strength">{{ t.qualification }}</span>
+            <span class="dc-teacher">
+              <span *ngIf="t.className">{{ t.className }}</span>
+              <span class="no-data" *ngIf="!t.className">Not assigned</span>
+            </span>
+            <span class="dc-students">
+              <span class="status-pill active" *ngIf="t.isActive">Active</span>
+              <span class="status-pill inactive" *ngIf="!t.isActive">Inactive</span>
+            </span>
+            <span class="dc-action">
+    <button
+      mat-icon-button
+      color="warn"
+      (click)="confirmDelete(t.id, 'teacher')"
+      matTooltip="Delete teacher">
+
+      <mat-icon>delete</mat-icon>
+    </button>
+  </span>
+          </div>
+          <div class="empty-row" *ngIf="!isLoadingTeachers() && teachers.length === 0">
+            No teachers added yet.
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- ── STUDENTS TAB ────────────────────────────────────────────────── -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">school</mat-icon>
+        Students ({{ students.length }})
+      </ng-template>
+
+      <div class="tab-content">
+        <div class="tab-actions">
+          <button mat-raised-button color="primary"
+            (click)="showCreateStudentForm.set(!showCreateStudentForm())">
+            <mat-icon>{{ showCreateStudentForm() ? 'close' : 'person_add' }}</mat-icon>
+            {{ showCreateStudentForm() ? 'Cancel' : 'Enroll Student' }}
+          </button>
+        </div>
+
+        <div class="create-form-card" *ngIf="showCreateStudentForm()">
+          <h3 class="form-title">Enroll New Student</h3>
+          <div class="invite-hint">
+            <mat-icon>info</mat-icon>
+            Student will register at <strong>/register/student</strong> using their roll number, date of birth and email.
+          </div>
+          <div class="form-grid" [formGroup]="studentForm">
+            <mat-form-field appearance="outline">
+              <mat-label>Full Name</mat-label>
+              <input matInput formControlName="fullName"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput type="email" formControlName="email"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Roll Number</mat-label>
+              <input matInput formControlName="rollNumber" placeholder="e.g. A001"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Assign Class</mat-label>
+              <mat-select formControlName="classId">
+                <mat-option *ngFor="let cls of classes" [value]="cls.id">
+                  {{ cls.name }} {{ cls.section }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Date of Birth</mat-label>
+              <input matInput [matDatepicker]="dobp" formControlName="dateOfBirth"/>
+              <mat-datepicker-toggle matSuffix [for]="dobp"></mat-datepicker-toggle>
+              <mat-datepicker #dobp></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Admission Date</mat-label>
+              <input matInput [matDatepicker]="admp" formControlName="admissionDate"/>
+              <mat-datepicker-toggle matSuffix [for]="admp"></mat-datepicker-toggle>
+              <mat-datepicker #admp></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <div class="form-actions">
+            <button mat-raised-button color="primary"
+              [disabled]="isSubmittingStudent()"
+              (click)="createStudent()">
+              <mat-spinner *ngIf="isSubmittingStudent()" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="!isSubmittingStudent()">school</mat-icon>
+              {{ isSubmittingStudent() ? 'Enrolling...' : 'Enroll Student' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="data-table">
+          <div class="dt-header">
+            <span class="dc-name">Student</span>
+            <span class="dc-year">Roll No</span>
+            <span class="dc-strength">Class</span>
+            <span class="dc-teacher">Date of Birth</span>
+            <span class="dc-students">Status</span>
+          </div>
+          <div class="loading-row" *ngIf="isLoadingStudents()">
+            <mat-spinner diameter="30"></mat-spinner>
+          </div>
+          <div class="dt-row" *ngFor="let s of students">
+            <span class="dc-name">
+              <div class="item-avatar amber">{{ s.fullName.charAt(0) }}</div>
+              <div class="item-info">
+                <strong>{{ s.fullName }}</strong>
+                <small>{{ s.email }}</small>
+              </div>
+            </span>
+            <span class="dc-year">
+              <span class="code-badge">{{ s.rollNumber }}</span>
+            </span>
+            <span class="dc-strength">{{ s.className }}</span>
+            <span class="dc-teacher">{{ s.dateOfBirth | date:'mediumDate' }}</span>
+            <span class="dc-students">
+              <span class="status-pill active" *ngIf="s.isActive">Active</span>
+              <span class="status-pill inactive" *ngIf="!s.isActive">Inactive</span>
+            </span>
+             <span class="dc-action">
+    <button
+      mat-icon-button
+      color="warn"
+      (click)="confirmDelete(s.id, 'student')"
+      matTooltip="Delete student">
+
+      <mat-icon>delete</mat-icon>
+    </button>
+  </span>
+          </div>
+          <div class="empty-row" *ngIf="!isLoadingStudents() && students.length === 0">
+            No students enrolled yet.
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+
+ 
+
+</div>

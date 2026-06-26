@@ -1,0 +1,101 @@
+<div class="complaints-mgmt-page">
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Complaints Management</h2>
+      <p class="page-sub">Review and resolve school grievances</p>
+    </div>
+    <div class="filter-row">
+      <mat-form-field appearance="outline" class="status-filter">
+        <mat-label>Filter by Status</mat-label>
+        <mat-select [(ngModel)]="selectedStatus"
+          (selectionChange)="loadComplaints()">
+          <mat-option *ngFor="let s of statusFilters" [value]="s.value">
+            {{ s.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Stats row -->
+  <div class="stats-row">
+  <div class="stat-pill open">{{ getStatusCount('Open') }} Open</div>
+  <div class="stat-pill review">{{ getStatusCount('InReview') }} In Review</div>
+  <div class="stat-pill resolved">{{ getStatusCount('Resolved') }} Resolved</div>
+</div>
+
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="empty-state"
+    *ngIf="!isLoading() && complaints.length === 0">
+    <mat-icon>check_circle</mat-icon>
+    <h3>No complaints found</h3>
+  </div>
+
+  <div class="complaints-list" *ngIf="!isLoading()">
+    <div class="complaint-card" *ngFor="let c of complaints"
+      [class.open]="c.status === 'Open'"
+      [class.inreview]="c.status === 'InReview'"
+      [class.resolved]="c.status === 'Resolved'">
+
+      <div class="cc-header">
+        <div class="cc-left">
+          <span class="cc-from">From: {{ c.submittedBy }}</span>
+          <h4 class="cc-title">{{ c.title }}</h4>
+          <span class="cc-cat">{{ c.category }}</span>
+        </div>
+        <span class="status-pill"
+          [style.background]="getStatusBg(c.status)"
+          [style.color]="getStatusColor(c.status)">
+          {{ c.status }}
+        </span>
+      </div>
+
+      <p class="cc-desc">{{ c.description }}</p>
+
+      <div class="cc-meta">
+        <span><mat-icon>calendar_today</mat-icon>{{ c.createdAt | date:'mediumDate' }}</span>
+      </div>
+
+      <!-- Resolution Form — only for non-resolved -->
+      <div class="resolution-form" *ngIf="c.status !== 'Resolved'">
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Resolution Remark (optional)</mat-label>
+          <input matInput [(ngModel)]="resolutionInput[c.id]"
+            placeholder="Add a remark before updating status..."/>
+        </mat-form-field>
+
+        <div class="action-btns">
+          <button mat-stroked-button
+            *ngIf="c.status === 'Open'"
+            [disabled]="isUpdating() === c.id"
+            (click)="updateStatus(c, 'InReview')">
+            <mat-icon>search</mat-icon> Mark In Review
+          </button>
+          <button mat-raised-button color="primary"
+            *ngIf="c.status === 'InReview'"
+            [disabled]="isUpdating() === c.id"
+            (click)="updateStatus(c, 'Resolved')">
+            <mat-spinner *ngIf="isUpdating() === c.id" diameter="16"></mat-spinner>
+            <mat-icon *ngIf="isUpdating() !== c.id">check_circle</mat-icon>
+            {{ isUpdating() === c.id ? 'Saving...' : 'Mark Resolved' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Already resolved -->
+      <div class="resolved-info" *ngIf="c.status === 'Resolved'">
+        <mat-icon>check_circle</mat-icon>
+        <div>
+          <span>Resolved on {{ c.resolvedAt | date:'mediumDate' }}</span>
+          <p *ngIf="c.resolutionRemark">{{ c.resolutionRemark }}</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

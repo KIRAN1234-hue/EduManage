@@ -1,0 +1,323 @@
+.marks-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1100px;
+}
+
+.page-header { margin-bottom: 4px; }
+
+.page-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 4px;
+}
+
+.page-sub {
+  font-size: 0.875rem;
+  color: #64748B;
+  margin: 0;
+}
+
+// Filters
+.filter-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  border: 1px solid #F1F5F9;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+// State boxes
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 64px 24px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  text-align: center;
+  color: #94A3B8;
+
+  h3 { color: #374151; margin: 0; font-size: 1rem; }
+  p  { color: #94A3B8; margin: 0; font-size: 0.875rem; }
+}
+
+.state-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #CBD5E1;
+}
+
+// Main card
+.marks-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  border: 1px solid #F1F5F9;
+  overflow: hidden;
+}
+
+// Summary bar
+.summary-bar {
+  display: flex;
+  align-items: center;
+  padding: 14px 24px;
+  background: #FAFAFA;
+  border-bottom: 1px solid #F1F5F9;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.s-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1;
+
+  &.blue   { color: #2563EB; }
+  &.green  { color: #16A34A; }
+  &.purple { color: #7C3AED; }
+}
+
+.s-lbl {
+  font-size: 0.7rem;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.s-sep {
+  width: 1px;
+  height: 32px;
+  background: #E2E8F0;
+}
+
+// Grade legend
+.legend-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-bottom: 1px solid #F1F5F9;
+  flex-wrap: wrap;
+}
+
+.legend-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #64748B;
+  margin-right: 4px;
+}
+
+.leg-item {
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+
+  &.aplus { background: #DCFCE7; color: #16A34A; }
+  &.a     { background: #F0FDF4; color: #22C55E; }
+  &.b     { background: #DBEAFE; color: #2563EB; }
+  &.c     { background: #FEF3C7; color: #D97706; }
+  &.d     { background: #FFEDD5; color: #EA580C; }
+  &.f     { background: #FEE2E2; color: #DC2626; }
+}
+
+// Table
+.marks-table {
+  overflow-x: auto;
+}
+
+// Each row is a flex container
+.trow {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #F8FAFC;
+  min-height: 56px;
+  transition: background 0.15s;
+
+  &:hover:not(.thead) { background: #F8FAFC; }
+  &:last-child { border-bottom: none; }
+  &.row-fail { background: #FFF5F5; }
+}
+
+// Header row
+.thead {
+  background: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+  min-height: 40px;
+
+  .tcell {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}
+
+// Each cell with fixed widths
+.tcell {
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #374151;
+  flex-shrink: 0;
+}
+
+.tc-roll   { width: 100px; padding-left: 24px; }
+.tc-name   { flex: 1; min-width: 180px; }
+.tc-marks  { width: 220px; }
+.tc-pct    { width: 120px; justify-content: center; }
+.tc-grade  { width: 100px; justify-content: center; padding-right: 24px; }
+
+// Roll tag
+.roll-tag {
+  background: #F1F5F9;
+  color: #475569;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: monospace;
+}
+
+// Student avatar + name
+.stu-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563EB, #7C3AED);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.stu-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0F172A;
+}
+
+// Marks input
+.input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.marks-inp {
+  width: 100px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0F172A;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: 'Inter', sans-serif;
+  background: white;
+
+  &:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button { opacity: 1; }
+}
+
+.max-txt {
+  font-size: 0.8rem;
+  color: #94A3B8;
+  white-space: nowrap;
+}
+
+// Percentage
+.pct-val {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.dash {
+  color: #CBD5E1;
+  font-size: 1.1rem;
+}
+
+// Grade badge
+.grade-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+// Footer
+.marks-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-top: 1px solid #F1F5F9;
+  background: #FAFAFA;
+}
+
+.footer-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #64748B;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.save-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 160px;
+  height: 40px;
+}
+
+.btn-spin {
+  margin-right: 4px;
+}

@@ -1,0 +1,103 @@
+.parent-attendance {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1000px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.page-title { font-size:1.4rem; font-weight:800; color:#0F172A; margin:0 0 4px; }
+.page-sub   { font-size:0.875rem; color:#64748B; margin:0; }
+
+.overall-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 14px;
+
+  mat-icon { font-size:28px; width:28px; height:28px; }
+
+  .badge-value { display:block; font-size:1.5rem; font-weight:800; line-height:1; }
+  .badge-label { display:block; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; }
+
+  &.good { background:#DCFCE7; color:#16A34A; }
+  &.bad  { background:#FEE2E2; color:#DC2626; }
+}
+
+.alert-banner {
+  display:flex; align-items:flex-start; gap:12px;
+  padding:14px 20px; background:#FEF3C7;
+  border:1px solid #F59E0B; border-radius:12px; color:#92400E;
+  mat-icon { color:#D97706; flex-shrink:0; }
+  strong { display:block; margin-bottom:2px; }
+}
+
+.subject-table-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border: 1px solid #F1F5F9;
+  overflow: hidden;
+}
+
+.table-head {
+  display: grid;
+  grid-template-columns: 1fr repeat(6, 100px);
+  padding: 12px 20px;
+  background: #F8FAFC;
+  border-bottom: 1px solid #F1F5F9;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1fr repeat(6, 100px);
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid #F8FAFC;
+  transition: background 0.15s;
+
+  &:hover { background: #F8FAFC; }
+  &:last-child { border-bottom: none; }
+}
+
+.subject-col { font-size:0.875rem; font-weight:600; color:#0F172A; }
+.center      { text-align:center; font-size:0.875rem; color:#374151; }
+.green-text  { color:#16A34A; font-weight:600; }
+.red-text    { color:#DC2626; font-weight:600; }
+.amber-text  { color:#D97706; font-weight:600; }
+
+.pct-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pct-bar-fill {
+  height: 6px;
+  border-radius: 3px;
+  min-width: 4px;
+  transition: width 1s ease;
+}
+
+.pct-text { font-size:0.8rem; font-weight:700; }
+
+.risk-pill {
+  display:inline-block;
+  padding:3px 10px;
+  border-radius:20px;
+  font-size:0.72rem;
+  font-weight:700;
+}
