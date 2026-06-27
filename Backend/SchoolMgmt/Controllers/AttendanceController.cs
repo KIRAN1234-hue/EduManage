@@ -23,7 +23,7 @@ public class AttendanceController : ControllerBase
         _unitOfWork = unitOfWork;
     }
 
-    // ── POST /api/attendance ─────────────────────────────────────────────────
+    // ── POST /api/attendance
     [HttpPost]
     [Authorize(Roles = "Teacher,Principal")]
     public async Task<IActionResult> MarkBulkAttendance(
@@ -65,7 +65,7 @@ public class AttendanceController : ControllerBase
         }
     }
 
-    // ── GET /api/attendance/student/{studentId} ──────────────────────────────
+    // ── GET /api/attendance/student/{studentId}
     [HttpGet("student/{studentId}")]
     [Authorize(Roles = "Student,Teacher,Principal,Parent")]
     public async Task<IActionResult> GetStudentAttendance(Guid studentId)
@@ -82,7 +82,7 @@ public class AttendanceController : ControllerBase
         }
     }
 
-    // ── GET /api/attendance/percentage/{studentId} ───────────────────────────
+    // ── GET /api/attendance/percentage/{studentId}
     [HttpGet("percentage/{studentId}")]
     [Authorize(Roles = "Student,Teacher,Principal,Parent")]
     public async Task<IActionResult> GetAttendancePercentage(Guid studentId)
@@ -99,7 +99,7 @@ public class AttendanceController : ControllerBase
         }
     }
 
-    // ── GET /api/attendance/class/{classId}?date=2024-01-15 ─────────────────
+    // ── GET /api/attendance/class/{classId}?date=2024-01-15 
     [HttpGet("class/{classId}")]
     [Authorize(Roles = "Teacher,Principal")]
     public async Task<IActionResult> GetClassAttendanceForDate(
@@ -110,7 +110,7 @@ public class AttendanceController : ControllerBase
         return Ok(records);
     }
 
-    // ── PUT /api/attendance/{attendanceId} ───────────────────────────────────
+    // ── PUT /api/attendance/{attendanceId}
     [HttpPut("{attendanceId}")]
     [Authorize(Roles = "Teacher,Principal")]
     public async Task<IActionResult> UpdateAttendance(

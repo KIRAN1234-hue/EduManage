@@ -26,7 +26,7 @@ public class AuditController : ControllerBase
         [FromQuery] string? action = null)
     {
         var query = _context.AuditLogs
-            .Include(a => a.User)    // ✅ use navigation property
+            .Include(a => a.User)    //navigation property
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(entity))
@@ -44,8 +44,8 @@ public class AuditController : ControllerBase
             .Select(a => new
             {
                 a.Id,
-                UserName = a.User.FullName,   // from navigation ✅
-                UserEmail = a.User.Email,       // from navigation ✅
+                UserName = a.User.FullName,   // from navigation
+                UserEmail = a.User.Email,       // from navigation
                 a.Action,
                 a.EntityName,
                 a.EntityId,

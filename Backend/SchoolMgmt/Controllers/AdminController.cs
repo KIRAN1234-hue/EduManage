@@ -17,9 +17,6 @@ public class AdminController : ControllerBase
         _adminService = adminService;
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // CLASSES
-    // ════════════════════════════════════════════════════════════════════════
 
     // POST /api/admin/classes
     [HttpPost("classes")]
@@ -62,10 +59,6 @@ public class AdminController : ControllerBase
         }
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // SUBJECTS
-    // ════════════════════════════════════════════════════════════════════════
-
     // POST /api/admin/subjects
     [HttpPost("subjects")]
     [Authorize(Roles = "Principal")]
@@ -104,10 +97,6 @@ public class AdminController : ControllerBase
         return Ok(subjects);
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    // TEACHERS
-    // ════════════════════════════════════════════════════════════════════════
-
     // POST /api/admin/teachers
     [HttpPost("teachers")]
     [Authorize(Roles = "Principal")]
@@ -132,10 +121,6 @@ public class AdminController : ControllerBase
         var teachers = await _adminService.GetAllTeachersAsync();
         return Ok(teachers);
     }
-
-    // ════════════════════════════════════════════════════════════════════════
-    // STUDENTS
-    // ════════════════════════════════════════════════════════════════════════
 
     // POST /api/admin/students
     [HttpPost("students")]
@@ -174,10 +159,6 @@ public class AdminController : ControllerBase
         var students = await _adminService.GetStudentsByClassAsync(classId);
         return Ok(students);
     }
-
-    // ════════════════════════════════════════════════════════════════════════
-    // DEACTIVATE USER
-    // ════════════════════════════════════════════════════════════════════════
 
     // PUT /api/admin/users/{userId}/deactivate
     [HttpPut("users/{userId}/deactivate")]

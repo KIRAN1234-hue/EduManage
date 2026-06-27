@@ -169,7 +169,7 @@ public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto
     {
         var user = await _userManager.FindByEmailAsync(dto.Email);
         if (user == null)
-            // Don't reveal if email exists — security best practice
+            // Don't reveal if email exists for security
             return Ok(new { message = "If this email exists, a reset token has been generated." });
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -180,7 +180,7 @@ public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto
         {
             message = "Password reset token generated.",
             email = dto.Email,
-            resetToken = token   // Remove this in production — send via email only
+            resetToken = token   //Going to Remove this in production — send via email only
         });
     }
 
